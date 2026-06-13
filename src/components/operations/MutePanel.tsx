@@ -1,0 +1,53 @@
+import { useState, useCallback, useEffect } from "react";
+import type { VideoFile } from "../../App";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProgressBar from "../common/ProgressBar";
+
+interface MutePanelProps {
+  video: VideoFile;
+}
+
+export default function MutePanel({ video }: MutePanelProps) {
+  const ffmpeg = useFFmpeg();
+  const { t } = useTranslation();
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
+  useEffect(() => { ffmpeg.init(); }, []);
+
+  const handleMute = useCallback(async () => {
+    setOutputUrl(null);
+    await ffmpeg.run(async (instance) => {
+      if (!video.data) throw new Error("No video data loaded");
+
+      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";
+      const inputName = "input" + ext;
+      const outputName = "muted" + ext;
+
+      await instance.writeFile(inputName, video.data);
+      await instance.exec(["-i", inputName, "-an", "-c:v", "copy", "-y", outputName]);
+
+      const raw = await instance.readFile(outputName);
+      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });
+      setOutputUrl(URL.createObjectURL(blob));
+    });
+  }, [video.data, video.name]);
+
+  return (
+    <div className="card space-y-6">
+      <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
+        <p>This operation removes all audio tracks from the video while keeping the video stream intact (stream copy).</p>
+      </div>
+
+      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Muting..." />}
+      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+
+      <div className="flex gap-3">
+        <button onClick={handleMute} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Mute Video"}
+        </button>
+        {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_muted.mp4`} className="btn-secondary">{t("common.download")}</a>}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicegui/tauri-v2/main/schema/capabilities.json",
+  "identifier": "default",
+  "description": "Default capability set for TRANVD",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "dialog:default",
+    "dialog:allow-open",
+    "dialog:allow-save",
+    "dialog:allow-message",
+    "dialog:allow-ask",
+    "fs:default",
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-exists",
+    "fs:allow-mkdir",
+    "shell:default",
+    "shell:allow-open"
+  ]
+}
