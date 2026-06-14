@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface SideBySidePanelProps {
   video: VideoFile;
@@ -44,7 +44,6 @@ export default function SideBySidePanel({ video }: SideBySidePanelProps) {
         ? "hstack=inputs=2"
         : "vstack=inputs=2";
 
-      // Scale both to same height first for hstack, or same width for vstack
       const scaleFilter = layout === "hstack"
         ? `[0:v]scale=-1:480[v0];[1:v]scale=-1:480[v1];[v0][v1]${filter}`
         : `[0:v]scale=640:-1[v0];[1:v]scale=640:-1[v1];[v0][v1]${filter}`;
@@ -66,35 +65,35 @@ export default function SideBySidePanel({ video }: SideBySidePanelProps) {
   return (
     <div className="card space-y-6">
       <div className="flex gap-4 items-center">
-        <div className="flex-1 p-3 bg-gray-800 rounded-lg text-center">
-          <p className="text-xs text-gray-500">First Video</p>
-          <p className="text-sm text-gray-200 mt-1">{video.name}</p>
+        <div className="flex-1 p-3 bg-surface-800 rounded-lg text-center">
+          <p className="text-xs text-surface-500">{t("sbs.first")}</p>
+          <p className="text-sm text-surface-200 mt-1">{video.name}</p>
         </div>
-        <span className="text-gray-500 text-xl">{layout === "hstack" ? "‖" : "≡"}</span>
-        <div className="flex-1 p-3 bg-gray-800 rounded-lg text-center">
-          <p className="text-xs text-gray-500">Second Video</p>
+        <span className="text-surface-500 text-xl">{layout === "hstack" ? "‖" : "≡"}</span>
+        <div className="flex-1 p-3 bg-surface-800 rounded-lg text-center">
+          <p className="text-xs text-surface-500">{t("sbs.second")}</p>
           <input ref={inputRef} type="file" accept="video/*" onChange={handleSecondFile} className="hidden" />
           <button onClick={() => inputRef.current?.click()} className="text-sm text-brand-400 hover:text-brand-300 mt-1">
-            {secondName ? `🎬 ${secondName}` : "Choose File"}
+            {secondName ? secondName : t("sbs.choose")}
           </button>
         </div>
       </div>
 
       <div className="flex gap-2 justify-center">
-        <button onClick={() => setLayout("hstack")} className={`px-4 py-2 rounded-lg text-sm ${layout === "hstack" ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300"}`}>
-          Side by Side
+        <button onClick={() => setLayout("hstack")} className={`px-4 py-2 rounded-lg text-sm ${layout === "hstack" ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300"}`}>
+          {t("sbs.side")}
         </button>
-        <button onClick={() => setLayout("vstack")} className={`px-4 py-2 rounded-lg text-sm ${layout === "vstack" ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300"}`}>
-          Top / Bottom
+        <button onClick={() => setLayout("vstack")} className={`px-4 py-2 rounded-lg text-sm ${layout === "vstack" ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300"}`}>
+          {t("sbs.top")}
         </button>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Creating comparison..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("sbs.creating")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleCompare} disabled={!secondVideo || ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Create Comparison"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("sbs.create")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_vs_${secondName}`} className="btn-secondary">{t("common.download")}</a>}
       </div>

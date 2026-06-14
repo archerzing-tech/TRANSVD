@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0%" stop-color="#1A1A18"/>
+      <stop offset="100%" stop-color="#0C0C0C"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0%" stop-color="#C89B5A" stop-opacity=".35"/>
+      <stop offset="50%" stop-color="#C89B5A" stop-opacity=".1"/>
+      <stop offset="100%" stop-color="#C89B5A" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded rect background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Subtle gradient overlay -->
+  <rect width="512" height="512" rx="96" fill="url(#shine)"/>
+  <!-- Inner glow border -->
+  <rect x="8" y="8" width="496" height="496" rx="88" stroke="#C89B5A" stroke-opacity=".12" stroke-width="2" fill="none"/>
+  <!-- Play triangle "T" shape: left part of play -->
+  <path d="M164 388V124l258 132-258 132Z" fill="#C89B5A"/>
+  <!-- Gradient highlight on play -->
+  <path d="M164 388V124l258 132-258 132Z" fill="url(#shine)" fill-opacity=".5"/>
+  <!-- Crossbar of T (film reel top) -->
+  <rect x="140" y="148" width="280" height="24" rx="4" fill="#C89B5A" fill-opacity=".85"/>
+  <!-- Subtle sparkle dots -->
+  <circle cx="380" cy="180" r="3" fill="#C89B5A" fill-opacity=".25"/>
+  <circle cx="400" cy="200" r="2" fill="#C89B5A" fill-opacity=".15"/>
+  <!-- Film sprocket holes (left side) -->
+  <rect x="148" y="200" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+  <rect x="148" y="226" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+  <rect x="148" y="252" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+  <rect x="148" y="278" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+  <rect x="148" y="304" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+</svg>

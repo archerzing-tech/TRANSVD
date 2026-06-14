@@ -2,18 +2,18 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface OverlayPanelProps {
   video: VideoFile;
 }
 
 const POSITIONS = [
-  { label: "Top Left", value: "10:10" },
-  { label: "Top Right", value: "main_w-overlay_w-10:10" },
-  { label: "Bottom Left", value: "10:main_h-overlay_h-10" },
-  { label: "Bottom Right", value: "main_w-overlay_w-10:main_h-overlay_h-10" },
-  { label: "Center", value: "(main_w-overlay_w)/2:(main_h-overlay_h)/2" },
+  { key: "overlay.tl" as const, value: "10:10" },
+  { key: "overlay.tr" as const, value: "main_w-overlay_w-10:10" },
+  { key: "overlay.bl" as const, value: "10:main_h-overlay_h-10" },
+  { key: "overlay.br" as const, value: "main_w-overlay_w-10:main_h-overlay_h-10" },
+  { key: "overlay.center" as const, value: "(main_w-overlay_w)/2:(main_h-overlay_h)/2" },
 ];
 
 export default function OverlayPanel({ video }: OverlayPanelProps) {
@@ -67,36 +67,36 @@ export default function OverlayPanel({ video }: OverlayPanelProps) {
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Logo / Watermark Image</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("overlay.image")}</label>
         <input ref={inputRef} type="file" accept="image/*" onChange={handleLogoFile} className="hidden" />
         <button onClick={() => inputRef.current?.click()} className="btn-secondary text-sm">
-          {logoName ? `🖼️ ${logoName}` : "Choose Image"}
+          {logoName ? logoName : t("overlay.choose")}
         </button>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Position</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("overlay.position")}</label>
         <div className="grid grid-cols-3 gap-2">
           {POSITIONS.map((p) => (
-            <button key={p.label} onClick={() => setPosition(p)}
-              className={`px-3 py-2 rounded-lg text-xs ${position.label === p.label ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}>
-              {p.label}
+            <button key={p.key} onClick={() => setPosition(p)}
+              className={`px-3 py-2 rounded-lg text-xs ${position.key === p.key ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300 hover:bg-surface-700"}`}>
+              {t(p.key)}
             </button>
           ))}
         </div>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-1">Logo Size: {Math.round(scale * 100)}%</label>
+        <label className="block text-sm text-surface-400 mb-1">{t("overlay.size")}: {Math.round(scale * 100)}%</label>
         <input type="range" min={0.05} max={0.5} step={0.05} value={scale} onChange={(e) => setScale(Number(e.target.value))} className="input-range" />
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Applying overlay..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("overlay.applying")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleOverlay} disabled={!logoFile || ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Apply Watermark"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("overlay.apply")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_watermarked.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface PipPanelProps {
   video: VideoFile;
@@ -20,18 +20,25 @@ export default function PipPanel({ video }: PipPanelProps) {
 
   useEffect(() => { ffmpeg.init(); }, []);
 
+  const positionKeyMap: Record<string, string> = {
+    tl: "pip.tl",
+    tr: "pip.tr",
+    bl: "pip.bl",
+    br: "pip.br",
+  };
+
+  const positionValueMap: Record<string, string> = {
+    tl: "10:10",
+    tr: "main_w-overlay_w-10:10",
+    bl: "10:main_h-overlay_h-10",
+    br: "main_w-overlay_w-10:main_h-overlay_h-10",
+  };
+
   const handlePipFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setPipName(file.name);
     file.arrayBuffer().then((buf) => setPipVideo(new Uint8Array(buf)));
-  };
-
-  const positionMap = {
-    tl: "10:10",
-    tr: "main_w-overlay_w-10:10",
-    bl: "10:main_h-overlay_h-10",
-    br: "main_w-overlay_w-10:main_h-overlay_h-10",
   };
 
   const handlePip = useCallback(async () => {
@@ -55,7 +62,7 @@ export default function PipPanel({ video }: PipPanelProps) {
         "-i", mainInput,
         "-i", pipInput,
         "-filter_complex",
-        `[1:v]scale=${pipW}:${pipH}[pip];[0:v][pip]overlay=${positionMap[pipPosition]}:format=auto`,
+        `[1:v]scale=${pipW}:${pipH}[pip];[0:v][pip]overlay=${positionValueMap[pipPosition]}:format=auto`,
         "-c:a", "copy",
         "-y", outputName,
       ]);
@@ -69,43 +76,43 @@ export default function PipPanel({ video }: PipPanelProps) {
   return (
     <div className="card space-y-6">
       <div className="flex gap-4 items-center">
-        <div className="flex-1 p-3 bg-gray-800 rounded-lg text-center">
-          <p className="text-xs text-gray-500">Main Video</p>
-          <p className="text-sm text-gray-200 mt-1">{video.name}</p>
+        <div className="flex-1 p-3 bg-surface-800 rounded-lg text-center">
+          <p className="text-xs text-surface-500">{t("pip.main")}</p>
+          <p className="text-sm text-surface-200 mt-1">{video.name}</p>
         </div>
-        <span className="text-gray-500 text-xl">🖥️</span>
-        <div className="flex-1 p-3 bg-gray-800 rounded-lg text-center">
-          <p className="text-xs text-gray-500">PiP Video (inset)</p>
+        <span className="text-surface-500 text-xl">⊞</span>
+        <div className="flex-1 p-3 bg-surface-800 rounded-lg text-center">
+          <p className="text-xs text-surface-500">{t("pip.pip")}</p>
           <input ref={inputRef} type="file" accept="video/*" onChange={handlePipFile} className="hidden" />
           <button onClick={() => inputRef.current?.click()} className="text-sm text-brand-400 hover:text-brand-300 mt-1">
-            {pipName ? `🎬 ${pipName}` : "Choose File"}
+            {pipName ? pipName : t("pip.choose")}
           </button>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-1">Inset Size: {Math.round(pipScale * 100)}%</label>
+        <label className="block text-sm text-surface-400 mb-1">{t("pip.size")}: {Math.round(pipScale * 100)}%</label>
         <input type="range" min={0.1} max={0.5} step={0.05} value={pipScale} onChange={(e) => setPipScale(Number(e.target.value))} className="input-range" />
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Inset Position</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("pip.position")}</label>
         <div className="grid grid-cols-2 gap-2">
-          {([["tl", "Top Left"], ["tr", "Top Right"], ["bl", "Bottom Left"], ["br", "Bottom Right"]] as const).map(([key, label]) => (
+          {(["tl", "tr", "bl", "br"] as const).map((key) => (
             <button key={key} onClick={() => setPipPosition(key)}
-              className={`px-4 py-2 rounded-lg text-sm ${pipPosition === key ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}>
-              {label}
+              className={`px-4 py-2 rounded-lg text-sm ${pipPosition === key ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300 hover:bg-surface-700"}`}>
+              {t(positionKeyMap[key])}
             </button>
           ))}
         </div>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Creating PiP..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("pip.creating")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handlePip} disabled={!pipVideo || ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Create PiP"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("pip.create")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_pip.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

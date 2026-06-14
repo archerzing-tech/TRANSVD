@@ -2,18 +2,18 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface RotatePanelProps {
   video: VideoFile;
 }
 
 const TRANSFORMS = [
-  { label: "Rotate 90° CW", vf: "transpose=1" },
-  { label: "Rotate 90° CCW", vf: "transpose=2" },
-  { label: "Rotate 180°", vf: "transpose=1,transpose=1" },
-  { label: "Flip Horizontal", vf: "hflip" },
-  { label: "Flip Vertical", vf: "vflip" },
+  { key: "rotate.cw" as const, vf: "transpose=1" },
+  { key: "rotate.ccw" as const, vf: "transpose=2" },
+  { key: "rotate.180" as const, vf: "transpose=1,transpose=1" },
+  { key: "rotate.hflip" as const, vf: "hflip" },
+  { key: "rotate.vflip" as const, vf: "vflip" },
 ];
 
 export default function RotatePanel({ video }: RotatePanelProps) {
@@ -45,20 +45,20 @@ export default function RotatePanel({ video }: RotatePanelProps) {
   return (
     <div className="card space-y-6">
       <div className="grid grid-cols-2 gap-2">
-        {TRANSFORMS.map((t) => (
-          <button key={t.label} onClick={() => setSelected(t)}
-            className={`p-4 rounded-lg text-sm font-medium text-center transition-colors ${selected.label === t.label ? "bg-brand-600 text-white ring-2 ring-brand-400" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}>
-            {t.label}
+        {TRANSFORMS.map((tr) => (
+          <button key={tr.key} onClick={() => setSelected(tr)}
+            className={`p-4 rounded-lg text-sm font-medium text-center transition-colors ${selected.key === tr.key ? "bg-brand-600 text-white ring-2 ring-brand-400" : "bg-surface-800 text-surface-300 hover:bg-surface-700"}`}>
+            {t(tr.key)}
           </button>
         ))}
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Applying transform..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("rotate.applying")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleRotate} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Apply"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("rotate.apply")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_transformed.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

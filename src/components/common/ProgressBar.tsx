@@ -8,16 +8,18 @@ export default function ProgressBar({ progress, label, showPercent = true }: Pro
   return (
     <div className="w-full">
       {(label || showPercent) && (
-        <div className="flex justify-between items-center mb-1">
-          {label && <span className="text-sm text-gray-400">{label}</span>}
+        <div className="flex justify-between items-center mb-1.5">
+          {label && <span className="text-sm text-surface-400">{label}</span>}
           {showPercent && (
-            <span className="text-sm text-gray-400">{Math.round(progress)}%</span>
+            <span className="text-sm text-surface-500 font-mono text-xs">
+              {Math.round(progress)}%
+            </span>
           )}
         </div>
       )}
-      <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+      <div className="progress-track">
         <div
-          className="h-full bg-brand-500 rounded-full transition-all duration-200 ease-out"
+          className="progress-bar"
           style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>

@@ -5,6 +5,7 @@ const en: Record<string, string> = {
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
   // Operations sidebar
+  "sidebar.operations": "Operations",
   "op.gif": "GIF Maker",
   "op.convert": "Format Converter",
   "op.compress": "Compress",
@@ -70,8 +71,13 @@ const en: Record<string, string> = {
   "convert.target": "Target Format",
   "convert.encoding": "Encoding",
   "convert.stream_copy": "Stream Copy (fast)",
+  "convert.stream_copy_desc": "Copies streams without re-encoding (may not work across formats)",
   "convert.reencode": "Re-encode",
+  "convert.reencode_desc": "Full re-encode for compatibility",
+  "convert.do_convert": "Convert",
   "convert.converting": "Converting...",
+  "convert.complete": "Conversion complete",
+  "convert.save": "Save",
   "convert.video": "Video",
   "convert.audio": "Audio",
   "convert.image": "Image",
@@ -181,6 +187,7 @@ const en: Record<string, string> = {
 
   // Subtitles Panel
   "sub.desc": "Embed subtitle files (SRT, VTT, ASS) as soft subtitle tracks.",
+  "sub.file_label": "Subtitle File",
   "sub.choose": "Choose Subtitle File",
   "sub.supported": "Supported: SRT, VTT, ASS",
   "sub.embed": "Embed Subtitles",
@@ -200,6 +207,7 @@ const en: Record<string, string> = {
 
   // Overlay Panel
   "overlay.choose": "Choose Logo Image",
+  "overlay.image": "Logo / Watermark Image",
   "overlay.position": "Position",
   "overlay.tl": "Top Left",
   "overlay.tr": "Top Right",
@@ -213,6 +221,7 @@ const en: Record<string, string> = {
   // Mix Audio Panel
   "mix.desc": "Mix background music with your video's original audio. Background loops to match video duration.",
   "mix.choose": "Choose Audio File",
+  "mix.audio_label": "Background Audio",
   "mix.volume": "Background Volume",
   "mix.mix": "Mix Audio",
   "mix.mixing": "Mixing audio...",

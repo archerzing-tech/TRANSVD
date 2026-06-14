@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface FadePanelProps {
   video: VideoFile;
@@ -60,33 +60,33 @@ export default function FadePanel({ video }: FadePanelProps) {
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Apply Fade To</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("fade.type")}</label>
         <div className="flex gap-2">
-          {(["video", "audio", "both"] as const).map((t) => (
-            <button key={t} onClick={() => setFadeType(t)}
-              className={`px-4 py-2 rounded-lg text-sm ${fadeType === t ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}>
-              {t === "video" ? "🎬 Video" : t === "audio" ? "🎵 Audio" : "Both"}
+          {(["video", "audio", "both"] as const).map((ft) => (
+            <button key={ft} onClick={() => setFadeType(ft)}
+              className={`px-4 py-2 rounded-lg text-sm ${fadeType === ft ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300 hover:bg-surface-700"}`}>
+              {t(`fade.${ft}`)}
             </button>
           ))}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Fade In: {fadeIn}s</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("fade.in")}: {fadeIn}s</label>
           <input type="range" min={0} max={10} step={0.5} value={fadeIn} onChange={(e) => setFadeIn(Number(e.target.value))} className="input-range" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Fade Out: {fadeOut}s</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("fade.out")}: {fadeOut}s</label>
           <input type="range" min={0} max={10} step={0.5} value={fadeOut} onChange={(e) => setFadeOut(Number(e.target.value))} className="input-range" />
         </div>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Applying fade..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("fade.applying")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleFade} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Apply Fade"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("fade.apply")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_faded.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

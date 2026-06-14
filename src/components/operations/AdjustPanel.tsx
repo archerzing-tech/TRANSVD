@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface AdjustPanelProps {
   video: VideoFile;
@@ -46,35 +46,35 @@ export default function AdjustPanel({ video }: AdjustPanelProps) {
     <div className="card space-y-6">
       <div className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Brightness: {brightness.toFixed(2)}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("adjust.brightness")}: {brightness.toFixed(2)}</label>
           <input type="range" min={-0.5} max={0.5} step={0.05} value={brightness} onChange={(e) => setBrightness(Number(e.target.value))} className="input-range" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Contrast: {contrast.toFixed(2)}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("adjust.contrast")}: {contrast.toFixed(2)}</label>
           <input type="range" min={0} max={3} step={0.05} value={contrast} onChange={(e) => setContrast(Number(e.target.value))} className="input-range" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Saturation: {saturation.toFixed(2)}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("adjust.saturation")}: {saturation.toFixed(2)}</label>
           <input type="range" min={0} max={3} step={0.05} value={saturation} onChange={(e) => setSaturation(Number(e.target.value))} className="input-range" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Gamma: {gamma.toFixed(2)}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("adjust.gamma")}: {gamma.toFixed(2)}</label>
           <input type="range" min={0.1} max={3} step={0.05} value={gamma} onChange={(e) => setGamma(Number(e.target.value))} className="input-range" />
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-400">
+      <label className="flex items-center gap-2 text-sm text-surface-400">
         <input type="checkbox" checked={grayscale} onChange={(e) => setGrayscale(e.target.checked)}
-          className="rounded bg-gray-800 border-gray-700" />
-        Grayscale
+          className="rounded bg-surface-800 border-surface-700" />
+        {t("adjust.grayscale")}
       </label>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Applying adjustments..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("adjust.applying")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleAdjust} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Apply"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("adjust.apply")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_adjusted.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

@@ -5,6 +5,7 @@ const zh: Record<string, string> = {
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
   // Operations sidebar
+  "sidebar.operations": "操作功能",
   "op.gif": "GIF 制作",
   "op.convert": "格式转换",
   "op.compress": "视频压缩",
@@ -70,8 +71,13 @@ const zh: Record<string, string> = {
   "convert.target": "目标格式",
   "convert.encoding": "编码方式",
   "convert.stream_copy": "流复制（快速）",
+  "convert.stream_copy_desc": "流复制无需重新编码（跨格式可能不兼容）",
   "convert.reencode": "重新编码",
+  "convert.reencode_desc": "完全重新编码以确保兼容性",
+  "convert.do_convert": "转换",
   "convert.converting": "正在转换...",
+  "convert.complete": "转换完成",
+  "convert.save": "保存",
   "convert.video": "视频",
   "convert.audio": "音频",
   "convert.image": "图片",
@@ -181,6 +187,7 @@ const zh: Record<string, string> = {
 
   // Subtitles Panel
   "sub.desc": "将字幕文件（SRT、VTT、ASS）作为软字幕轨道嵌入到视频中。",
+  "sub.file_label": "字幕文件",
   "sub.choose": "选择字幕文件",
   "sub.supported": "支持格式：SRT、VTT、ASS",
   "sub.embed": "嵌入字幕",
@@ -200,6 +207,7 @@ const zh: Record<string, string> = {
 
   // Overlay Panel
   "overlay.choose": "选择水印图片",
+  "overlay.image": "水印图片",
   "overlay.position": "位置",
   "overlay.tl": "左上",
   "overlay.tr": "右上",
@@ -213,6 +221,7 @@ const zh: Record<string, string> = {
   // Mix Audio Panel
   "mix.desc": "将背景音乐与视频原音混合。背景音频会自动循环以匹配视频时长。",
   "mix.choose": "选择音频文件",
+  "mix.audio_label": "背景音乐",
   "mix.volume": "背景音量",
   "mix.mix": "混合音频",
   "mix.mixing": "正在混合音频...",

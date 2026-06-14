@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface StripMetaPanelProps {
   video: VideoFile;
@@ -35,24 +35,24 @@ export default function StripMetaPanel({ video }: StripMetaPanelProps) {
 
   return (
     <div className="card space-y-6">
-      <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300 space-y-2">
-        <p>Removes all metadata from the video file, including:</p>
-        <ul className="list-disc pl-5 text-gray-400 space-y-1">
-          <li>GPS location data</li>
-          <li>Camera information (make, model)</li>
-          <li>Timestamps and recording date</li>
-          <li>Software and encoder tags</li>
-          <li>All other metadata fields</li>
+      <div className="bg-surface-800 rounded-lg p-4 text-sm text-surface-300 space-y-2">
+        <p>{t("strip.desc")}</p>
+        <ul className="list-disc pl-5 text-surface-400 space-y-1">
+          <li>{t("strip.gps")}</li>
+          <li>{t("strip.camera")}</li>
+          <li>{t("strip.timestamp")}</li>
+          <li>{t("strip.software")}</li>
+          <li>{t("strip.all")}</li>
         </ul>
-        <p className="text-green-400 mt-2">Video and audio streams are copied without re-encoding (fast).</p>
+        <p className="text-green-400 mt-2">{t("strip.note")}</p>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Stripping metadata..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("strip.stripping")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleStrip} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Strip Metadata"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("strip.strip")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_clean.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

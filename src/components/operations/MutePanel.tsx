@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface MutePanelProps {
   video: VideoFile;
@@ -35,16 +35,16 @@ export default function MutePanel({ video }: MutePanelProps) {
 
   return (
     <div className="card space-y-6">
-      <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
-        <p>This operation removes all audio tracks from the video while keeping the video stream intact (stream copy).</p>
+      <div className="bg-surface-800 rounded-lg p-4 text-sm text-surface-300">
+        <p>{t("mute.desc")}</p>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Muting..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("mute.muting")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleMute} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Mute Video"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("mute.mute")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_muted.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

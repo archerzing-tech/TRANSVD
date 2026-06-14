@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface MixAudioPanelProps {
   video: VideoFile;
@@ -56,29 +56,29 @@ export default function MixAudioPanel({ video }: MixAudioPanelProps) {
 
   return (
     <div className="card space-y-6">
-      <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
-        <p>Mix background music with your video's original audio track. The background audio is looped to match the video duration.</p>
+      <div className="bg-surface-800 rounded-lg p-4 text-sm text-surface-300">
+        <p>{t("mix.desc")}</p>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Background Audio</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("mix.audio_label")}</label>
         <input ref={inputRef} type="file" accept="audio/*" onChange={handleAudioFile} className="hidden" />
         <button onClick={() => inputRef.current?.click()} className="btn-secondary text-sm">
-          {audioName ? `🎵 ${audioName}` : "Choose Audio File"}
+          {audioName ? audioName : t("mix.choose")}
         </button>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-1">Background Volume: {Math.round(mixVolume * 100)}%</label>
+        <label className="block text-sm text-surface-400 mb-1">{t("mix.volume")}: {Math.round(mixVolume * 100)}%</label>
         <input type="range" min={0} max={1} step={0.05} value={mixVolume} onChange={(e) => setMixVolume(Number(e.target.value))} className="input-range" />
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Mixing audio..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("mix.mixing")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleMix} disabled={!audioFile || ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Mix Audio"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("mix.mix")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_mixed.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

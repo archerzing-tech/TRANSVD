@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 const RECIPES = [
   { label: "H.264 Compress (CRF 23)", args: "-c:v libx264 -crf 23 -c:a aac" },
@@ -83,13 +83,13 @@ export default function RawFFmpegPanel({ video }: RawFFmpegPanelProps) {
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Recipe Library</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("raw.recipes")}</label>
         <div className="flex flex-wrap gap-2">
           {RECIPES.map((r) => (
             <button
               key={r.label}
               onClick={() => applyRecipe(r.args)}
-              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs rounded-lg transition-colors"
+              className="px-3 py-1.5 bg-surface-800 hover:bg-surface-700 text-surface-300 text-xs rounded-lg transition-colors"
             >
               {r.label}
             </button>
@@ -98,8 +98,8 @@ export default function RawFFmpegPanel({ video }: RawFFmpegPanelProps) {
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-1">
-          FFmpeg Arguments (after -i input)
+        <label className="block text-sm text-surface-400 mb-1">
+          {t("raw.args")}
         </label>
         <textarea
           value={command}
@@ -112,7 +112,7 @@ export default function RawFFmpegPanel({ video }: RawFFmpegPanelProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Output Extension</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("raw.output_ext")}</label>
           <select
             value={outputExt}
             onChange={(e) => setOutputExt(e.target.value)}
@@ -136,15 +136,13 @@ export default function RawFFmpegPanel({ video }: RawFFmpegPanelProps) {
       </div>
 
       {ffmpeg.loading && (
-        <div className="text-sm text-gray-400">Loading FFmpeg WASM...</div>
+        <div className="text-sm text-surface-400">{t("common.loading_ffmpeg")}</div>
       )}
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && (
-        <ProgressBar progress={ffmpeg.progress} label="Processing..." />
-      )}
+      <ProcessingOverlay active={ffmpeg.progress > 0 && ffmpeg.progress < 100} progress={ffmpeg.progress} label={t("raw.running")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
 
       {ffmpeg.error && (
-        <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300 whitespace-pre-wrap font-mono">
+        <div className="banner-error text-red-300 whitespace-pre-wrap font-mono">
           {ffmpeg.error}
         </div>
       )}
@@ -155,11 +153,11 @@ export default function RawFFmpegPanel({ video }: RawFFmpegPanelProps) {
           disabled={!command.trim() || ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)}
           className="btn-primary"
         >
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Run Command"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("raw.run")}
         </button>
         {outputUrl && (
           <button onClick={handleDownload} className="btn-secondary">
-            Download
+            {t("common.download")}
           </button>
         )}
       </div>

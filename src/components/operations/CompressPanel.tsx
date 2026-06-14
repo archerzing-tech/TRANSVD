@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface CompressPanelProps {
   video: VideoFile;
@@ -54,30 +54,30 @@ export default function CompressPanel({ video }: CompressPanelProps) {
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-1">
-          CRF: {crf} ({crf <= 18 ? "High Quality" : crf <= 28 ? "Balanced" : "Small Size"})
+        <label className="block text-sm text-surface-400 mb-1">
+          {t("compress.crf")}: {crf} ({crf <= 18 ? t("compress.high_quality") : crf <= 28 ? t("compress.balanced") : t("compress.small_size")})
         </label>
         <input type="range" min={18} max={51} value={crf} onChange={(e) => setCrf(Number(e.target.value))} className="input-range" />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>High Quality (18)</span>
-          <span>Small Size (51)</span>
+        <div className="flex justify-between text-xs text-surface-500 mt-1">
+          <span>{t("compress.high_quality")} (18)</span>
+          <span>{t("compress.small_size")} (51)</span>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm text-gray-400 mb-1">Encoding Preset</label>
+        <label className="block text-sm text-surface-400 mb-1">{t("compress.preset")}</label>
         <select value={preset} onChange={(e) => setPreset(e.target.value)} className="select-input w-full">
           {PRESETS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
         </select>
-        <p className="text-xs text-gray-600 mt-1">Slower = better compression, smaller file</p>
+        <p className="text-xs text-surface-600 mt-1">{t("compress.preset_hint")}</p>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Compressing..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("compress.compressing")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleCompress} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Compress"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("compress.compress")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_compressed.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

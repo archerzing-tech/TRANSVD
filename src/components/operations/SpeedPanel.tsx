@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface SpeedPanelProps {
   video: VideoFile;
@@ -55,31 +55,31 @@ export default function SpeedPanel({ video }: SpeedPanelProps) {
     });
   }, [video.data, video.name, speed, preservePitch]);
 
-  const speedLabel = speed < 1 ? "Slower" : speed > 1 ? "Faster" : "Normal";
+  const speedLabel = speed < 1 ? t("speed.slower") : speed > 1 ? t("speed.faster") : t("speed.normal");
 
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-1">Speed: {speed.toFixed(2)}× ({speedLabel})</label>
+        <label className="block text-sm text-surface-400 mb-1">{t("speed.speed")}: {speed.toFixed(2)}x ({speedLabel})</label>
         <input type="range" min={0.25} max={4} step={0.05} value={speed}
           onChange={(e) => setSpeed(Number(e.target.value))} className="input-range" />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
-          <span>0.25×</span><span>1×</span><span>4×</span>
+        <div className="flex justify-between text-xs text-surface-500 mt-1">
+          <span>0.25x</span><span>1x</span><span>4x</span>
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-400">
+      <label className="flex items-center gap-2 text-sm text-surface-400">
         <input type="checkbox" checked={preservePitch} onChange={(e) => setPreservePitch(e.target.checked)}
-          className="rounded bg-gray-800 border-gray-700" />
-        Preserve audio pitch (atempo filter, limited to 0.5×–2× range)
+          className="rounded bg-surface-800 border-surface-700" />
+        {t("speed.preserve")}
       </label>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Changing speed..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("speed.changing")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleSpeed} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Change Speed"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("speed.change")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_${speed.toFixed(2)}x.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

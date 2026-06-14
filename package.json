@@ -1,6 +1,6 @@
 {
   "name": "transvd",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Desktop video editor powered by ffmpeg.wasm — Tauri 2.x port of ffmpeg-webCLI",
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-fs": "^2.2.0",
     "@tauri-apps/plugin-shell": "^2.2.0",
+    "playwright": "^1.60.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
@@ -35,6 +36,7 @@
     "autoprefixer": "^10.4.20",
     "eslint": "^9.15.0",
     "postcss": "^8.4.49",
+    "sharp": "^0.35.1",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "vite": "^6.0.3",

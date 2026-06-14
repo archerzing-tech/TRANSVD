@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface ReversePanelProps {
   video: VideoFile;
@@ -35,17 +35,17 @@ export default function ReversePanel({ video }: ReversePanelProps) {
 
   return (
     <div className="card space-y-6">
-      <div className="bg-gray-800 rounded-lg p-4 text-sm text-gray-300">
-        <p>Reverses both video and audio playback. This operation can take a while as ffmpeg needs to process the entire file.</p>
-        <p className="mt-2 text-yellow-400">⚠ Note: Reverse requires frame-accurate decoding and may use significant memory.</p>
+      <div className="bg-surface-800 rounded-lg p-4 text-sm text-surface-300">
+        <p>{t("reverse.desc")}</p>
+        <p className="mt-2 text-yellow-400">⚠ {t("reverse.warn")}</p>
       </div>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Reversing..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("reverse.reversing")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleReverse} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Reverse Video"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("reverse.reverse")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_reversed.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

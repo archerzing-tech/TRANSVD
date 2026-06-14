@@ -5,13 +5,39 @@ export type LogCallback = (message: string) => void;
 export type LoadProgressCallback = (phase: string, percent: number) => void;
 
 /**
- * Load ffmpeg-core using data URLs for the JS file.
- *
- * Why data URL: the ffmpeg worker first tries importScripts(url) which hangs on
- * blob URLs pointing to ES modules. A data URL makes importScripts fail
- * immediately (syntax error in classic-script context), which triggers the
- * fallback path: await import(url) — which works perfectly for data URLs.
+ * Global live callbacks — updated by the currently active panel.
+ * The ffmpeg event handlers read these instead of captured closures,
+ * so switching panels never loses progress/log events.
  */
+export let globalProgressCallback: ProgressCallback | null = null;
+export let globalLogCallback: LogCallback | null = null;
+
+export function setGlobalProgressCallback(cb: ProgressCallback | null) {
+  globalProgressCallback = cb;
+}
+export function setGlobalLogCallback(cb: LogCallback | null) {
+  globalLogCallback = cb;
+}
+
+// ── Cached WASM payload ────────────────────────────────────────
+// Stored as Uint8Array (non-transferable) to avoid detachment issues.
+let cachedCoreJS: string | null = null;
+let cachedCoreWasm: Uint8Array | null = null;
+
+async function ensureCachedPayload(onLoadProgress?: LoadProgressCallback) {
+  if (cachedCoreJS && cachedCoreWasm) return;
+  onLoadProgress?.("Loading ffmpeg-core...", 20);
+  const [jsResp, wasmResp] = await Promise.all([
+    fetch("/ffmpeg/ffmpeg-core.js"),
+    fetch("/ffmpeg/ffmpeg-core.wasm"),
+  ]);
+  if (!jsResp.ok) throw new Error(`Failed to load ffmpeg-core.js (${jsResp.status})`);
+  if (!wasmResp.ok) throw new Error(`Failed to load ffmpeg-core.wasm (${wasmResp.status})`);
+  cachedCoreJS = await jsResp.text();
+  // Store as Uint8Array — ArrayBuffer can be silently detached in some runtimes
+  cachedCoreWasm = new Uint8Array(await wasmResp.arrayBuffer());
+}
+
 async function loadWithTimeout<T>(
   promise: Promise<T>,
   ms: number,
@@ -28,36 +54,34 @@ async function loadWithTimeout<T>(
   }
 }
 
+/**
+ * Create a fresh ffmpeg instance.
+ * Caches the ~31 MB WASM payload so subsequent calls skip the network.
+ *
+ * ⚠️ Each call creates a new Worker and new WASM memory.
+ *    The previous instance MUST be terminated before calling this again.
+ */
 export async function createFFmpeg(
-  onProgress?: ProgressCallback,
-  onLog?: LogCallback,
   onLoadProgress?: LoadProgressCallback,
 ): Promise<FFmpeg> {
+  await ensureCachedPayload(onLoadProgress);
+
   const ffmpeg = new FFmpeg();
 
+  // Event handlers read the live global callbacks (updated per-panel)
   ffmpeg.on("progress", ({ progress }: { progress: number }) => {
-    onProgress?.(Math.min(progress * 100, 99.9));
+    globalProgressCallback?.(Math.min(progress * 100, 99.9));
   });
-
   ffmpeg.on("log", ({ message }: { message: string }) => {
-    onLog?.(message);
+    globalLogCallback?.(message);
   });
 
-  // ── Fetch JS → data URL (importScripts fails fast, import() works) ──
-  onLoadProgress?.("Loading ffmpeg-core...", 20);
+  // Core URL as data URL (no transferables involved)
+  const coreURL = `data:text/javascript;base64,${btoa(cachedCoreJS!)}`;
 
-  const [jsResp, wasmResp] = await Promise.all([
-    fetch("/ffmpeg/ffmpeg-core.js"),
-    fetch("/ffmpeg/ffmpeg-core.wasm"),
-  ]);
-
-  if (!jsResp.ok) throw new Error(`Failed to load ffmpeg-core.js (${jsResp.status})`);
-  if (!wasmResp.ok) throw new Error(`Failed to load ffmpeg-core.wasm (${wasmResp.status})`);
-
-  const jsText = await jsResp.text();
-  const wasmBytes = await wasmResp.arrayBuffer();
-
-  const coreURL = `data:text/javascript;base64,${btoa(jsText)}`;
+  // WASM: create a fresh blob from a COPY of the cached bytes.
+  // We use .slice() to get a new Uint8Array so the cached copy is never touched.
+  const wasmBytes = cachedCoreWasm!.slice(0);
   const wasmBlob = new Blob([wasmBytes], { type: "application/wasm" });
   const wasmURL = URL.createObjectURL(wasmBlob);
 

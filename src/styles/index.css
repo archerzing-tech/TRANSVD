@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  * {
+  *,
+  *::before,
+  *::after {
     box-sizing: border-box;
   }
 
@@ -16,44 +18,160 @@
     overflow: hidden;
   }
 
-  /* Scrollbar styling */
+  body {
+    @apply bg-surface-950 text-surface-50 font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom scrollbar — amber tint */
   ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #4b5563;
-    border-radius: 3px;
+    @apply bg-surface-700 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
+    @apply bg-surface-600;
+  }
+
+  ::selection {
+    @apply bg-brand-500/30 text-surface-50;
   }
 }
 
 @layer components {
+  /* ── Primary action button ── */
   .btn-primary {
-    @apply bg-brand-600 hover:bg-brand-500 text-white font-medium py-2 px-4 rounded-lg
-           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-brand-600 hover:bg-brand-500 active:bg-brand-700
+           text-white font-medium py-2.5 px-5 rounded-lg
+           transition-all duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-brand-600
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50
+           shadow-sm hover:shadow-md hover:shadow-brand-500/10;
   }
 
+  /* ── Secondary / outline button ── */
   .btn-secondary {
-    @apply bg-gray-700 hover:bg-gray-600 text-gray-100 font-medium py-2 px-4 rounded-lg
-           transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-surface-800 hover:bg-surface-700 active:bg-surface-900
+           text-surface-200 font-medium py-2.5 px-5 rounded-lg
+           border border-surface-700/50
+           transition-all duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40;
   }
 
+  /* ── Ghost button (minimal) ── */
+  .btn-ghost {
+    @apply hover:bg-surface-800 active:bg-surface-700
+           text-surface-400 hover:text-surface-200
+           transition-all duration-150 rounded-lg px-3 py-2
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40;
+  }
+
+  /* ── Card container ── */
   .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl p-4;
+    @apply bg-surface-850 border border-surface-800/80 rounded-xl p-5
+           shadow-sm;
   }
 
+  /* ── Card with hover lift ── */
+  .card-hover {
+    @apply card transition-all duration-200 hover:border-surface-700 hover:shadow-md;
+  }
+
+  /* ── Form labels ── */
+  .label {
+    @apply block text-sm font-medium text-surface-400 mb-1.5;
+  }
+
+  /* ── Text inputs / selects ── */
+  .input {
+    @apply w-full bg-surface-900 border border-surface-700/70 text-surface-100
+           rounded-lg px-3.5 py-2.5 text-sm
+           placeholder:text-surface-500
+           transition-all duration-150
+           focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 focus:outline-none;
+  }
+
+  /* ── Select dropdown ── */
+  .select-input {
+    @apply input appearance-none
+           bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23838378%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')]
+           bg-[length:14px] bg-[right_12px_center] bg-no-repeat pr-10;
+  }
+
+  /* ── Range slider ── */
   .input-range {
-    @apply w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer
+    @apply w-full h-1.5 bg-surface-800 rounded-full appearance-none cursor-pointer
            accent-brand-500;
   }
+  .input-range::-webkit-slider-thumb {
+    @apply appearance-none w-4 h-4 rounded-full bg-brand-500
+           shadow-sm shadow-brand-500/30 border-2 border-surface-900
+           transition-transform duration-100 hover:scale-110;
+  }
+  .input-range::-moz-range-thumb {
+    @apply w-4 h-4 rounded-full bg-brand-500 border-2 border-surface-900
+           shadow-sm shadow-brand-500/30;
+  }
 
-  .select-input {
-    @apply bg-gray-800 border border-gray-700 text-gray-100 rounded-lg px-3 py-2
-           focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none;
+  /* ── Error / success / info banners ── */
+  .banner-error {
+    @apply bg-red-950/60 border border-red-900/50 rounded-lg p-3.5 text-sm text-red-300
+           flex items-start gap-2.5;
+  }
+  .banner-success {
+    @apply bg-emerald-950/40 border border-emerald-900/40 rounded-lg p-3.5 text-sm text-emerald-300
+           flex items-start gap-2.5;
+  }
+  .banner-info {
+    @apply bg-brand-950/30 border border-brand-500/20 rounded-lg p-3.5 text-sm text-brand-300
+           flex items-start gap-2.5;
+  }
+
+  /* ── Progress bar (used everywhere) ── */
+  .progress-track {
+    @apply w-full h-1.5 bg-surface-800 rounded-full overflow-hidden;
+  }
+  .progress-bar {
+    @apply h-full bg-brand-500 rounded-full transition-all duration-300 ease-out;
+  }
+
+  /* ── Section divider ── */
+  .divider {
+    @apply border-t border-surface-800/60 my-4;
+  }
+
+  /* ── Tab buttons (segmented control style) ── */
+  .tab {
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150
+           text-surface-400 hover:text-surface-200 hover:bg-surface-800
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40;
+  }
+  .tab-active {
+    @apply tab bg-surface-800 text-surface-100 shadow-sm;
+  }
+
+  /* ── Tag / badge ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-medium;
+  }
+  .badge-success {
+    @apply badge bg-emerald-950/50 text-emerald-400 border border-emerald-900/40;
+  }
+  .badge-warning {
+    @apply badge bg-amber-950/40 text-amber-400 border border-amber-900/30;
+  }
+  .badge-error {
+    @apply badge bg-red-950/50 text-red-400 border border-red-900/40;
+  }
+
+  /* ── File info bar ── */
+  .file-info {
+    @apply flex items-center gap-3 p-3 bg-surface-850/60 border border-surface-800/50 rounded-lg text-sm;
   }
 }

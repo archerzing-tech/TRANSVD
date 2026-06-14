@@ -1,6 +1,7 @@
 import LanguageSwitcher from "../common/LanguageSwitcher";
 import { useTranslation } from "../../context/LanguageContext";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { IconFilm, IconLoading } from "../../lib/icons";
 
 interface HeaderProps {
   onHome?: () => void;
@@ -10,10 +11,25 @@ export default function Header({ onHome }: HeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <header className="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center gap-3 shrink-0">
-      <button onClick={onHome} className="text-2xl hover:scale-110 transition-transform" title="Home">🎬</button>
-      <h1 className="text-xl font-bold text-white">TRANSVD</h1>
-      <span className="text-sm text-gray-400 ml-2">{t("app.subtitle")}</span>
+    <header className="bg-surface-900/95 backdrop-blur-sm border-b border-surface-800/70 px-5 py-2.5 flex items-center gap-3 shrink-0 z-20">
+      {/* Logo + Title */}
+      <button
+        onClick={onHome}
+        className="flex items-center gap-3 group cursor-pointer"
+        title={t("app.title")}
+      >
+        <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center group-hover:bg-brand-500/20 group-hover:border-brand-500/30 transition-all duration-200">
+          <IconFilm size={18} className="text-brand-500" />
+        </div>
+        <div className="flex items-baseline gap-2">
+          <h1 className="text-base font-bold text-surface-50 tracking-tight">TRANSVD</h1>
+          <span className="text-[11px] text-surface-500 font-medium hidden sm:inline">
+            {t("app.subtitle")}
+          </span>
+        </div>
+      </button>
+
+      {/* Right side */}
       <div className="ml-auto flex items-center gap-3">
         <FFmpegStatus />
         <LanguageSwitcher />
@@ -24,12 +40,31 @@ export default function Header({ onHome }: HeaderProps) {
 
 function FFmpegStatus() {
   const { ready, loading, loadPhase, loadPercent } = useFFmpeg();
-  if (loading) return (
-    <span className="text-xs text-yellow-500 flex items-center gap-1" title={`${loadPhase} ${Math.round(loadPercent)}%`}>
-      <span className="animate-spin w-3 h-3 border-2 border-yellow-500 border-t-transparent rounded-full inline-block" />
-      {Math.round(loadPercent)}%
-    </span>
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-850 border border-surface-800/50">
+        <IconLoading size={12} className="text-brand-500 animate-spin-slow" />
+        <span className="text-xs text-surface-500">
+          {loadPhase} {Math.round(loadPercent)}%
+        </span>
+      </div>
+    );
+  }
+
+  if (ready) {
+    return (
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/30 border border-emerald-900/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/40" />
+        <span className="text-xs text-emerald-400 font-medium">ffmpeg</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-850 border border-surface-800/50">
+      <span className="w-1.5 h-1.5 rounded-full bg-surface-600" />
+      <span className="text-xs text-surface-500">ffmpeg</span>
+    </div>
   );
-  if (ready) return <span className="text-xs text-green-500">✅ ffmpeg</span>;
-  return <span className="text-xs text-gray-500">⏸️ ffmpeg</span>;
 }

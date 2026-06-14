@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface ResizePanelProps {
   video: VideoFile;
@@ -63,11 +63,11 @@ export default function ResizePanel({ video }: ResizePanelProps) {
   return (
     <div className="card space-y-6">
       <div>
-        <label className="block text-sm text-gray-400 mb-2">Resolution Presets</label>
+        <label className="block text-sm text-surface-400 mb-2">{t("resize.presets")}</label>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((p) => (
             <button key={p.label} onClick={() => applyPreset(p)}
-              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${width === p.w ? "bg-brand-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}>
+              className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${width === p.w ? "bg-brand-600 text-white" : "bg-surface-800 text-surface-300 hover:bg-surface-700"}`}>
               {p.label}
             </button>
           ))}
@@ -76,29 +76,29 @@ export default function ResizePanel({ video }: ResizePanelProps) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Width (px)</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("resize.width")}</label>
           <input type="number" min={64} max={7680} step={2} value={width}
             onChange={(e) => setWidth(Number(e.target.value))} className="select-input w-full" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Height (px)</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("resize.height")}</label>
           <input type="number" min={64} max={4320} step={2} value={height}
             onChange={(e) => setHeight(Number(e.target.value))} className="select-input w-full" />
         </div>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-400">
+      <label className="flex items-center gap-2 text-sm text-surface-400">
         <input type="checkbox" checked={maintainAspect} onChange={(e) => setMaintainAspect(e.target.checked)}
-          className="rounded bg-gray-800 border-gray-700" />
-        Maintain aspect ratio (letterbox)
+          className="rounded bg-surface-800 border-surface-700" />
+        {t("resize.maintain")}
       </label>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Resizing..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("resize.resizing")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleResize} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Resize"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("resize.resize")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_${width}x${height}.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>

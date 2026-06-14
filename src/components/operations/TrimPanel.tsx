@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import type { VideoFile } from "../../App";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
-import ProgressBar from "../common/ProgressBar";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 
 interface TrimPanelProps {
   video: VideoFile;
@@ -48,24 +48,24 @@ export default function TrimPanel({ video }: TrimPanelProps) {
     <div className="card space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Start (s): {start}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("trim.start")}: {start}s</label>
           <input type="range" min={0} max={Math.max(end - 1, 60)} step={0.5} value={start}
             onChange={(e) => setStart(Number(e.target.value))} className="input-range" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">End (s): {end}</label>
+          <label className="block text-sm text-surface-400 mb-1">{t("trim.end")}: {end}s</label>
           <input type="range" min={start + 1} max={300} step={0.5} value={end}
             onChange={(e) => setEnd(Number(e.target.value))} className="input-range" />
         </div>
       </div>
-      <p className="text-sm text-gray-500 text-center">Duration: {(end - start).toFixed(1)}s</p>
+      <p className="text-sm text-surface-500 text-center">{t("trim.duration")}: {(end - start).toFixed(1)}s</p>
 
-      {ffmpeg.progress > 0 && ffmpeg.progress < 100 && <ProgressBar progress={ffmpeg.progress} label="Trimming..." />}
-      {ffmpeg.error && <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-sm text-red-300">{ffmpeg.error}</div>}
+      <ProcessingOverlay active={ffmpeg.progress > 0} progress={ffmpeg.progress} label={t("trim.trimming")} log={ffmpeg.log} onCancel={ffmpeg.cancel} cancelling={ffmpeg.cancelling} />
+      {ffmpeg.error && <div className="banner-error">{ffmpeg.error}</div>}
 
       <div className="flex gap-3">
         <button onClick={handleTrim} disabled={ffmpeg.loading || (ffmpeg.progress > 0 && ffmpeg.progress < 100)} className="btn-primary">
-          {!ffmpeg.loaded ? t("common.load_ffmpeg") : "Trim"}
+          {!ffmpeg.loaded ? t("common.load_ffmpeg") : t("trim.trim")}
         </button>
         {outputUrl && <a href={outputUrl} download={`${video.name.replace(/\.[^.]+$/, "")}_trimmed.mp4`} className="btn-secondary">{t("common.download")}</a>}
       </div>
