@@ -119,7 +119,7 @@ export default function App() {
                 operation={activeOperation}
                 video={video}
                 onOpenFile={handleOpenFile}
-                onHome={handleHome}
+                onSelectOperation={setActiveOperation}
               />
             </main>
           </div>
@@ -240,7 +240,7 @@ function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => voi
             {ff.ready && (
               <div className="text-xs text-surface-600 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70" />
-                ffmpeg.wasm loaded
+                ffmpeg ready
               </div>
             )}
           </div>

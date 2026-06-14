@@ -33,3 +33,11 @@ src-tauri/icons/icon.icns
 # Claude Code / OpenCode
 .claude/
 .opencode/
+
+# Temp artifacts
+src-tauri/output.gif
+src-tauri/palette.png
+NUL
+
+# ffmpeg binary in public is the WASM fallback, not needed for sidecar
+public/ffmpeg/ffmpeg.exe
