@@ -7,48 +7,10 @@ import DropZone from "./components/common/DropZone";
 import OperationPanel from "./components/layout/OperationPanel";
 import { useTranslation } from "./context/LanguageContext";
 import { IconFilm, IconLoading } from "./lib/icons";
+import type { OperationId, VideoFile } from "./types";
 
-export type OperationId =
-  | "gif" | "convert" | "compress" | "trim" | "resize"
-  | "audio-extract" | "mute" | "speed" | "rotate" | "crop"
-  | "thumbnail" | "reverse" | "fade" | "adjust" | "strip-meta"
-  | "subtitles" | "volume" | "loop" | "overlay" | "mix-audio"
-  | "concat" | "side-by-side" | "pip" | "mediainfo" | "raw";
-
-export interface VideoFile {
-  name: string;
-  path: string;
-  size: number;
-  data: Uint8Array | null;
-}
-
-export const OPERATIONS: { id: OperationId; labelKey: string }[] = [
-  { id: "gif", labelKey: "op.gif" },
-  { id: "convert", labelKey: "op.convert" },
-  { id: "compress", labelKey: "op.compress" },
-  { id: "trim", labelKey: "op.trim" },
-  { id: "resize", labelKey: "op.resize" },
-  { id: "audio-extract", labelKey: "op.audio-extract" },
-  { id: "mute", labelKey: "op.mute" },
-  { id: "speed", labelKey: "op.speed" },
-  { id: "rotate", labelKey: "op.rotate" },
-  { id: "crop", labelKey: "op.crop" },
-  { id: "thumbnail", labelKey: "op.thumbnail" },
-  { id: "reverse", labelKey: "op.reverse" },
-  { id: "fade", labelKey: "op.fade" },
-  { id: "adjust", labelKey: "op.adjust" },
-  { id: "strip-meta", labelKey: "op.strip-meta" },
-  { id: "subtitles", labelKey: "op.subtitles" },
-  { id: "volume", labelKey: "op.volume" },
-  { id: "loop", labelKey: "op.loop" },
-  { id: "overlay", labelKey: "op.overlay" },
-  { id: "mix-audio", labelKey: "op.mix-audio" },
-  { id: "concat", labelKey: "op.concat" },
-  { id: "side-by-side", labelKey: "op.side-by-side" },
-  { id: "pip", labelKey: "op.pip" },
-  { id: "mediainfo", labelKey: "op.mediainfo" },
-  { id: "raw", labelKey: "op.raw" },
-];
+export type { OperationId, VideoFile } from "./types";
+export { OPERATIONS } from "./types";
 
 async function pickAndReadFile(): Promise<VideoFile | null> {
   try {
@@ -86,10 +48,9 @@ async function pickAndReadFile(): Promise<VideoFile | null> {
 
 export default function App() {
   const [video, setVideo] = useState<VideoFile | null>(null);
-  const [activeOperation, setActiveOperation] = useState<OperationId | null>(null);
-  const ff = useFFmpeg();
+  const [activeOperation, setActiveOperation] = useState<OperationId | null>(null);    const { init } = useFFmpeg();
 
-  useEffect(() => { ff.init(); }, []);
+  useEffect(() => { init(); }, [init]);
 
   const handleFileSelected = useCallback((file: VideoFile) => {
     setVideo(file);
@@ -189,7 +150,7 @@ function useOperationCategories(): OpCategory[] {
 
 function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => void }) {
   const { t } = useTranslation();
-  const ff = useFFmpeg();
+  const { loading, loadPhase, loadPercent, ready } = useFFmpeg();
   const categories = useOperationCategories();
 
   return (
@@ -228,16 +189,16 @@ function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => voi
 
           {/* FFmpeg status */}
           <div className="mt-4 flex justify-center">
-            {ff.loading && (
+            {loading && (
               <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-surface-850 border border-surface-800">
                 <IconLoading size={14} className="text-brand-500 animate-spin-slow" />
                 <span className="text-sm text-surface-500">
-                  <span className="text-brand-400">{ff.loadPhase}</span>
-                  {" "}{Math.round(ff.loadPercent)}%
+                  <span className="text-brand-400">{loadPhase}</span>
+                  {" "}{Math.round(loadPercent)}%
                 </span>
               </div>
             )}
-            {ff.ready && (
+            {ready && (
               <div className="text-xs text-surface-600 flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70" />
                 ffmpeg ready

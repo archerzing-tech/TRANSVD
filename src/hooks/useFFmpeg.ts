@@ -15,6 +15,7 @@ let globalLoadPercent = 0;
 let globalRunning = false;
 let globalCancelling = false;
 let globalUseNative = false; // cached after first check
+let currentNativeFFmpeg: NativeFFmpeg | null = null;
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -38,8 +39,8 @@ async function loadWasmFFmpeg(): Promise<FFmpeg> {
         globalLoadPhase = phase; globalLoadPercent = pct; notify();
       });
       globalLoaded = true; globalError = null;
-    } catch (err: any) {
-      globalError = err.message || "Failed to load FFmpeg";
+    } catch (err: unknown) {
+      globalError = err instanceof Error ? err.message : "Failed to load FFmpeg";
       globalInstance = null; globalLoaded = false;
     } finally {
       globalLoading = false; globalLoadPromise = null; notify();
@@ -125,9 +126,28 @@ export function useFFmpeg(): UseFFmpegReturn {
       if (globalUseNative) {
         // ── Native path: fresh NativeFFmpeg per operation ──
         const nff = new NativeFFmpeg();
-        // Cast to FFmpeg — compatible interface
-        await action(nff as unknown as FFmpeg);
-        await nff.terminate();
+        currentNativeFFmpeg = nff;
+        // If user cancelled between globalRunning=true and here, abort immediately
+        if (globalCancelling) {
+          await nff.kill();
+          await nff.terminate();
+          currentNativeFFmpeg = null;
+          throw new Error("Operation cancelled");
+        }
+        // Wire progress/log events to UI state
+        nff.on("progress", (pct) => {
+          setProgress(Math.min(pct as number, 99.9));
+        });
+        nff.on("log", (msg) => {
+          setLog((prev) => [...prev, msg as string]);
+        });
+        try {
+          // Cast to FFmpeg — compatible interface
+          await action(nff as unknown as FFmpeg);
+        } finally {
+          await nff.terminate();
+          currentNativeFFmpeg = null;
+        }
       } else {
         // ── WASM fallback path ──
         await loadWasmFFmpeg();
@@ -136,9 +156,9 @@ export function useFFmpeg(): UseFFmpegReturn {
         await action(ff);
       }
       setProgress(100);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (!globalCancelling) {
-        const msg = err.message || String(err);
+        const msg = err instanceof Error ? err.message : String(err);
         setLog((prev) => [...prev, `Error: ${msg}`]);
         setOpError(msg);
         notify();
@@ -155,11 +175,15 @@ export function useFFmpeg(): UseFFmpegReturn {
   const cancel = useCallback(() => {
     globalCancelling = true; notify();
     if (globalUseNative) {
-      // Native cancellation is handled by the next operation creating a fresh instance
+      // Kill the native ffmpeg process if running
+      if (currentNativeFFmpeg) {
+        currentNativeFFmpeg.kill();
+      }
     } else {
       terminateWasmInstance();
     }
-    setProgress(0); notify();
+    setProgress(0);
+    notify();
   }, []);
 
   const loading = globalUseNative ? false : globalLoading;

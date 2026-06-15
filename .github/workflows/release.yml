@@ -23,6 +23,14 @@ jobs:
             target: x86_64-pc-windows-msvc
             rust-target: x86_64-pc-windows-msvc
 
+          - os: macos-13
+            target: x86_64-apple-darwin
+            rust-target: x86_64-apple-darwin
+
+          - os: macos-14
+            target: aarch64-apple-darwin
+            rust-target: aarch64-apple-darwin
+
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
 
@@ -58,11 +66,56 @@ jobs:
           VERSION="${VERSION#v}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Download static ffmpeg (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p src-tauri/binaries
+          # Map target triple → ffmpeg.martin-riedl.de arch name
+          case "${{ matrix.target }}" in
+            x86_64-apple-darwin)
+              ARCH=amd64
+              BINARY="ffmpeg-x86_64-apple-darwin"
+              ;;
+            aarch64-apple-darwin)
+              ARCH=arm64
+              BINARY="ffmpeg-aarch64-apple-darwin"
+              ;;
+          esac
+          echo "Downloading static ffmpeg (${{ matrix.target }})…"
+          curl -L -o ffmpeg.zip \
+            "https://ffmpeg.martin-riedl.de/redirect/latest/macos/${ARCH}/release/ffmpeg.zip"
+          unzip -o ffmpeg.zip
+          mv ffmpeg "src-tauri/binaries/${BINARY}"
+          chmod +x "src-tauri/binaries/${BINARY}"
+          # Remove quarantine attribute so macOS Gatekeeper allows execution
+          xattr -d com.apple.quarantine "src-tauri/binaries/${BINARY}" 2>/dev/null || true
+          echo "Static ffmpeg binary ready:"
+          file "src-tauri/binaries/${BINARY}"
+          otool -L "src-tauri/binaries/${BINARY}" | head -5
+
       - name: Build Tauri app
         id: build
         uses: tauri-apps/tauri-action@v0.6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # ── macOS code signing & notarization ──
+          # These secrets must be configured in your GitHub repo settings:
+          #   Settings → Secrets and variables → Actions
+          #
+          # Required:
+          #   APPLE_CERTIFICATE         base64-encoded .p12 Developer ID certificate
+          #   APPLE_CERTIFICATE_PASSWORD password for the .p12
+          #   APPLE_SIGNING_IDENTITY    e.g. "Developer ID Application: Your Name (TEAMID)"
+          #   APPLE_ID                  your Apple ID email
+          #   APPLE_PASSWORD            App-Specific Password (generate at appleid.apple.com)
+          #   APPLE_TEAM_ID             your 10-character Apple Developer Team ID
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tagName: v${{ steps.version.outputs.version }}
           releaseName: "TRANSVD v${{ steps.version.outputs.version }}"

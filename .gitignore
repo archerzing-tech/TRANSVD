@@ -41,3 +41,4 @@ NUL
 
 # ffmpeg binary in public is the WASM fallback, not needed for sidecar
 public/ffmpeg/ffmpeg.exe
+src-tauri/binaries/

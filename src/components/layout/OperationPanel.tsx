@@ -1,5 +1,4 @@
-import type { OperationId, VideoFile } from "../../App";
-import { OPERATIONS } from "../../App";
+import { type OperationId, type VideoFile, OPERATIONS } from "../../types";
 import { useTranslation } from "../../context/LanguageContext";
 import { OPERATION_ICONS, IconOpenFile, IconFilm } from "../../lib/icons";
 import GifPanel from "../operations/GifPanel";

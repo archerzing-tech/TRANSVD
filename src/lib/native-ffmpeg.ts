@@ -57,15 +57,26 @@ export class NativeFFmpeg {
   private tempDir: string | null = null;
   private absTd: string = "";
   private _ready = false;
+  private _child: { kill: () => Promise<void> } | null = null;
+  private _killed = false;
   private _progressListeners: ProgressCallback[] = [];
   private _logListeners: LogCallback[] = [];
 
   /** Emulates ffmpeg.on("progress", cb) */
-  on(event: "progress" | "log", cb: (...args: any[]) => void): void {
+  on(event: "progress" | "log", cb: (...args: unknown[]) => void): void {
     if (event === "progress") {
       this._progressListeners.push(cb as ProgressCallback);
     } else if (event === "log") {
       this._logListeners.push(cb as LogCallback);
+    }
+  }
+
+  /** Kill the currently running ffmpeg process */
+  async kill(): Promise<void> {
+    this._killed = true;
+    if (this._child) {
+      try { await this._child.kill(); } catch { /* best effort */ }
+      this._child = null;
     }
   }
 
@@ -79,6 +90,7 @@ export class NativeFFmpeg {
   }
 
   async writeFile(name: string, data: Uint8Array | string): Promise<void> {
+    if (this._killed) throw new Error("Operation cancelled");
     const { writeFile, BaseDirectory } = await getFs();
     const td = await this.ensureReady();
     const buf = typeof data === "string" ? new TextEncoder().encode(data) : data;
@@ -89,6 +101,7 @@ export class NativeFFmpeg {
   private static FILE_FLAGS = new Set(["-i", "-y"]);
 
   async exec(args: string[]): Promise<void> {
+    if (this._killed) throw new Error("Operation cancelled");
     await this.ensureReady();
     const { Command } = await getShell();
 
@@ -112,31 +125,55 @@ export class NativeFFmpeg {
 
     const command = Command.sidecar(SIDECAR_NAME, fullArgs);
 
-    // Execute and collect stderr
-    const result = await command.execute();
+    // Spawn (gives us a killable child) and return promise that resolves on exit
+    const child = await command.spawn();
+    this._child = child;
 
-    const stderr = (result.stderr || "") as string;
-    if (stderr) {
-      // Feed stderr to log listeners (for MediaInfoPanel etc.)
-      stderr.split("\n").forEach((line) => {
-        if (line) this._logListeners.forEach((cb) => cb(line));
+    return new Promise<void>((resolve, reject) => {
+      let stderr = "";
+
+      // Listen to stderr in real-time for progress, logs & error accumulation
+      command.stderr.on("data", (data: string) => {
+        stderr += data;
+        // Parse progress from this chunk
+        const m = data.match(/time=(\d+):(\d+):(\d+)\.(\d+)/);
+        if (m) {
+          const secs = +m[1] * 3600 + +m[2] * 60 + +m[3] + +m[4] / 100;
+          this._progressListeners.forEach((cb) => cb(secs % 100));
+        }
+        // Feed lines to log listeners
+        data.split("\n").forEach((line: string) => {
+          if (line) this._logListeners.forEach((cb) => cb(line));
+        });
       });
-      // Parse progress from stderr
-      const m = stderr.match(/time=(\d+):(\d+):(\d+)\.(\d+)/);
-      if (m) {
-        const secs = +m[1] * 3600 + +m[2] * 60 + +m[3] + +m[4] / 100;
-        this._progressListeners.forEach((cb) => cb(secs % 100));
-      }
-    }
 
-    if (result.code !== 0) {
-      const lines = stderr.trim().split("\n");
-      const msg = lines[lines.length - 1] || `Exit code ${result.code}`;
-      throw new Error(msg);
-    }
+      command.on("close", (payload: { code: number | null; signal: number | null }) => {
+        this._child = null;
+        if (this._killed) {
+          // Process was intentionally killed by cancel()
+          this._progressListeners = [];
+          this._logListeners = [];
+          reject(new Error("Operation cancelled"));
+        } else if (payload.code === 0) {
+          resolve();
+        } else {
+          const lines = stderr.trim().split("\n");
+          const msg = lines[lines.length - 1] || `Exit code ${payload.code ?? "unknown"}`;
+          reject(new Error(msg));
+        }
+      });
+
+      command.on("error", (err: string) => {
+        this._child = null;
+        if (!this._killed) {
+          reject(new Error(err));
+        }
+      });
+    });
   }
 
   async readFile(name: string): Promise<Uint8Array> {
+    if (this._killed) throw new Error("Operation cancelled");
     const { readFile, BaseDirectory } = await getFs();
     const td = await this.ensureReady();
     return await readFile(`${td}/${name}`, { baseDir: BaseDirectory.AppCache });
@@ -144,6 +181,11 @@ export class NativeFFmpeg {
 
   async terminate(): Promise<void> {
     if (!this.tempDir) return;
+    // Kill child if still running
+    if (this._child) {
+      try { await this._child.kill(); } catch { /* best effort */ }
+      this._child = null;
+    }
     try {
       const { remove, BaseDirectory } = await getFs();
       await remove(this.tempDir, { baseDir: BaseDirectory.AppCache, recursive: true });
@@ -151,6 +193,7 @@ export class NativeFFmpeg {
     this.tempDir = null;
     this.absTd = "";
     this._ready = false;
+    this._killed = false;
     this._progressListeners = [];
     this._logListeners = [];
   }

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import type { VideoFile } from "../../App";
+import type { VideoFile } from "../../types";
 import { useTranslation } from "../../context/LanguageContext";
 import { IconFilm, IconPlus } from "../../lib/icons";
 

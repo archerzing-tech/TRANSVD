@@ -330,7 +330,7 @@ export const IconLoading: FC<IconProps> = (props) => (
 
 // ── Operation icon map ──
 
-import type { OperationId } from "../App";
+import type { OperationId } from "../types";
 
 export const OPERATION_ICONS: Record<OperationId, FC<IconProps>> = {
   gif: IconGif,

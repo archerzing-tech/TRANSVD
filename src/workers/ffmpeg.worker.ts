@@ -14,7 +14,9 @@
 //   { type: "result", id: string, payload: { output: Uint8Array } }
 //   { type: "error", id: string, payload: { message: string } }
 
-let ffmpeg: any = null;
+import type { FFmpeg as FFmpegType } from "@ffmpeg/ffmpeg";
+
+let ffmpeg: FFmpegType | null = null;
 
 self.onmessage = async (e: MessageEvent) => {
   const { type, payload, id } = e.data;
@@ -44,8 +46,9 @@ self.onmessage = async (e: MessageEvent) => {
         });
 
         self.postMessage({ type: "init-complete" });
-      } catch (err: any) {
-        self.postMessage({ type: "error", payload: { message: err.message || "Failed to load FFmpeg" } });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to load FFmpeg";
+        self.postMessage({ type: "error", payload: { message: msg } });
       }
       break;
     }
@@ -65,16 +68,17 @@ self.onmessage = async (e: MessageEvent) => {
         await ffmpeg.exec(args);
 
         // Read output file
-        const data = await ffmpeg.readFile(outputFileName);
-        const output = data instanceof Uint8Array ? data : new Uint8Array(data);
+        const raw = await ffmpeg.readFile(outputFileName);
+        const output = raw instanceof Uint8Array ? raw : new TextEncoder().encode(raw);
 
         // Cleanup
         await ffmpeg.deleteFile(inputFileName);
         try { await ffmpeg.deleteFile(outputFileName); } catch {}
 
         self.postMessage({ type: "result", id, payload: { output } }, { transfer: [output.buffer] });
-      } catch (err: any) {
-        self.postMessage({ type: "error", id, payload: { message: err.message || "Execution failed" } });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Execution failed";
+        self.postMessage({ type: "error", id, payload: { message: msg } });
       }
       break;
     }

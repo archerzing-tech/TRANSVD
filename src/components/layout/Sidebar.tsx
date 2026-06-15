@@ -1,4 +1,4 @@
-import { type OperationId, OPERATIONS } from "../../App";
+import { type OperationId, OPERATIONS } from "../../types";
 import { useTranslation } from "../../context/LanguageContext";
 import { OPERATION_ICONS, IconChevronRight } from "../../lib/icons";
 import { useState } from "react";
