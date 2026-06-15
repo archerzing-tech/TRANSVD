@@ -94,6 +94,30 @@ jobs:
           file "src-tauri/binaries/${BINARY}"
           otool -L "src-tauri/binaries/${BINARY}" | head -5
 
+      - name: Download static ffmpeg (Windows)
+        if: runner.os == 'Windows'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          mkdir -p src-tauri/binaries
+          BINARY="ffmpeg-x86_64-pc-windows-msvc.exe"
+          echo "Downloading static ffmpeg (Windows x64)…"
+          # Use GitHub API to resolve the latest release download URL reliably
+          LATEST_URL=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest \
+            | grep 'browser_download_url' \
+            | grep 'win64-gpl' \
+            | head -1 \
+            | cut -d'"' -f4)
+          echo "Downloading from: $LATEST_URL"
+          curl -L -o ffmpeg.zip "$LATEST_URL"
+          unzip -o ffmpeg.zip
+          # The zip contains a subfolder like ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe
+          find . -name 'ffmpeg.exe' -exec mv {} "src-tauri/binaries/${BINARY}" \;
+          echo "Static ffmpeg binary ready:"
+          ls -lh "src-tauri/binaries/${BINARY}"
+
       - name: Build Tauri app
         id: build
         uses: tauri-apps/tauri-action@v0.6
