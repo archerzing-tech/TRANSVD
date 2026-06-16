@@ -27,8 +27,7 @@ npm-debug.log*
 # Rust
 src-tauri/target/
 
-# Tauri
-src-tauri/icons/icon.icns
+
 
 # Claude Code / OpenCode
 .claude/
