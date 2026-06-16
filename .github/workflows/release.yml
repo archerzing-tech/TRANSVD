@@ -22,14 +22,17 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             rust-target: x86_64-pc-windows-msvc
+            args: ''
 
-          - os: macos-13
+          - os: macos-15-intel
             target: x86_64-apple-darwin
             rust-target: x86_64-apple-darwin
+            args: ''
 
-          - os: macos-14
+          - os: macos-latest
             target: aarch64-apple-darwin
             rust-target: aarch64-apple-darwin
+            args: ''
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -56,15 +59,6 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
-
-      - name: Set version
-        id: version
-        shell: bash
-        run: |
-          # Strip leading 'v' if present, so tag "v1.0.0" gives version "1.0.0"
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Download static ffmpeg (macOS)
         if: runner.os == 'macOS'
@@ -120,7 +114,7 @@ jobs:
 
       - name: Build Tauri app
         id: build
-        uses: tauri-apps/tauri-action@v0.6
+        uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # ── macOS code signing & notarization ──
@@ -141,9 +135,10 @@ jobs:
           APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
-          tagName: v${{ steps.version.outputs.version }}
-          releaseName: "TRANSVD v${{ steps.version.outputs.version }}"
+          tagName: v__VERSION__
+          releaseName: "TRANSVD v__VERSION__"
           releaseBody: |
             See the assets to download this version.
           releaseDraft: true
           prerelease: false
+          args: ${{ matrix.args }}
