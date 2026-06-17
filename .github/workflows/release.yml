@@ -118,22 +118,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # ── macOS code signing & notarization ──
-          # These secrets must be configured in your GitHub repo settings:
+          # To enable code signing, configure these secrets in your GitHub repo:
           #   Settings → Secrets and variables → Actions
           #
-          # Required:
           #   APPLE_CERTIFICATE         base64-encoded .p12 Developer ID certificate
           #   APPLE_CERTIFICATE_PASSWORD password for the .p12
           #   APPLE_SIGNING_IDENTITY    e.g. "Developer ID Application: Your Name (TEAMID)"
           #   APPLE_ID                  your Apple ID email
-          #   APPLE_PASSWORD            App-Specific Password (generate at appleid.apple.com)
+          #   APPLE_PASSWORD            App-Specific Password
           #   APPLE_TEAM_ID             your 10-character Apple Developer Team ID
-          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          #
+          # Until then, ad-hoc signing is used (signingIdentity: "-" in tauri.conf.json).
+          # Uncomment the lines below when secrets are configured:
+          # APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          # APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          # APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          # APPLE_ID: ${{ secrets.APPLE_ID }}
+          # APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          # APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         with:
           tagName: v__VERSION__
           releaseName: "TRANSVD v__VERSION__"
