@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { LanguageProvider } from "./context/LanguageContext";
-import { useFFmpeg } from "./hooks/useFFmpeg";
+import { useFFmpeg, setNativeInputInfo } from "./hooks/useFFmpeg";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
 import DropZone from "./components/common/DropZone";
@@ -19,7 +19,7 @@ async function pickAndReadFile(): Promise<VideoFile | null> {
     const selected = await open({
       multiple: false,
       filters: [
-        { name: "Video Files", extensions: ["mp4", "webm", "mkv", "mov", "avi", "gif", "ts", "mts", "m2ts"] },
+        { name: "Video Files", extensions: ["mp4", "webm", "mkv", "mov", "avi", "gif", "ts", "mts", "m2ts", "m3u8"] },
         { name: "Audio Files", extensions: ["mp3", "aac", "wav", "ogg", "flac"] },
       ],
     });
@@ -35,7 +35,7 @@ async function pickAndReadFile(): Promise<VideoFile | null> {
   return new Promise((resolve) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "video/*,audio/*,.mp4,.webm,.mkv,.mov,.avi,.gif,.ts,.mts,.m2ts,.mp3,.aac,.wav,.ogg,.flac";
+    input.accept = "video/*,audio/*,.mp4,.webm,.mkv,.mov,.avi,.gif,.ts,.mts,.m2ts,.m3u8,.mp3,.aac,.wav,.ogg,.flac";
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) { resolve(null); return; }
@@ -54,15 +54,22 @@ export default function App() {
 
   const handleFileSelected = useCallback((file: VideoFile) => {
     setVideo(file);
+    const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
+    setNativeInputInfo(file.path, "input" + ext);
   }, []);
 
   const handleOpenFile = useCallback(async () => {
     const file = await pickAndReadFile();
-    if (file) setVideo(file);
+    if (file) {
+      setVideo(file);
+      const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
+      setNativeInputInfo(file.path, "input" + ext);
+    }
   }, []);
 
   const handleHome = useCallback(() => {
     setVideo(null);
+    setNativeInputInfo(null, null);
   }, []);
 
   return (

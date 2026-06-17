@@ -17,6 +17,19 @@ let globalCancelling = false;
 let globalUseNative = false; // cached after first check
 let currentNativeFFmpeg: NativeFFmpeg | null = null;
 
+// Original input path for native mode (e.g., m3u8 files)
+// Set by App.tsx when a file is selected, used by run() to register
+// the original path on the NativeFFmpeg instance so ffmpeg can resolve
+// relative .ts segments referenced in m3u8 playlists.
+let nativeInputPath: string | null = null;
+let nativeInputName: string | null = null;
+
+/** Register the original file path for native mode HLS/m3u8 support */
+export function setNativeInputInfo(path: string | null, inputName: string | null) {
+  nativeInputPath = path;
+  nativeInputName = inputName;
+}
+
 type Listener = () => void;
 const listeners = new Set<Listener>();
 export function subscribe(fn: Listener) { listeners.add(fn); return () => { listeners.delete(fn); }; }
@@ -127,6 +140,12 @@ export function useFFmpeg(): UseFFmpegReturn {
         // ── Native path: fresh NativeFFmpeg per operation ──
         const nff = new NativeFFmpeg();
         currentNativeFFmpeg = nff;
+
+        // Register original file path for m3u8 / HLS playlists
+        // so ffmpeg can resolve relative .ts segment paths
+        if (nativeInputPath && nativeInputName) {
+          nff.setOriginalPath(nativeInputName, nativeInputPath);
+        }
         // If user cancelled between globalRunning=true and here, abort immediately
         if (globalCancelling) {
           await nff.kill();

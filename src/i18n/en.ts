@@ -52,7 +52,7 @@ const en: Record<string, string> = {
   // DropZone
   "dz.title": "Drop a video file here",
   "dz.hint": "or click to browse",
-  "dz.supported": "MP4, WebM, MKV, MOV, AVI, GIF, and more",
+  "dz.supported": "MP4, WebM, MKV, MOV, AVI, GIF, M3U8, and more",
   "dz.privacy": "All processing happens locally · No uploads",
   "dz.loading_file": "Loading file...",
 

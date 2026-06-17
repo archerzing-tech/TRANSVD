@@ -1,31 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  /* Cinematic Pro — deep charcoal with warm amber accent */
-  --color-brand-50: #FDF8F0;
-  --color-brand-100: #F9EDD6;
-  --color-brand-200: #F2D9A8;
-  --color-brand-300: #E8C47A;
-  --color-brand-400: #D8B06A;
-  --color-brand-500: #C89B5A;
-  --color-brand-600: #B8894A;
-  --color-brand-700: #9A7040;
-  --color-brand-800: #7A5A38;
-  --color-brand-900: #5C442E;
-  --color-brand-950: #3D2D1E;
+  /* Warm Slate — lighter and more vibrant than Cinematic Pro */
+  --color-brand-50: #FEF8F0;
+  --color-brand-100: #FBEED9;
+  --color-brand-200: #F5DBA8;
+  --color-brand-300: #EDC87A;
+  --color-brand-400: #DFB46A;
+  --color-brand-500: #D4A860;
+  --color-brand-600: #C49A54;
+  --color-brand-700: #A67E44;
+  --color-brand-800: #866438;
+  --color-brand-900: #664B2C;
+  --color-brand-950: #46331E;
 
-  --color-surface-50: #F5F5F0;
-  --color-surface-100: #E8E8E0;
-  --color-surface-200: #D0D0C4;
-  --color-surface-300: #A3A39A;
-  --color-surface-400: #838378;
-  --color-surface-500: #6B6B60;
-  --color-surface-600: #545449;
-  --color-surface-700: #3D3D36;
-  --color-surface-800: #2A2A26;
-  --color-surface-850: #1A1A18;
-  --color-surface-900: #111110;
-  --color-surface-950: #0C0C0C;
+  --color-surface-50: #F8F8F5;
+  --color-surface-100: #EDEDE5;
+  --color-surface-200: #DADACE;
+  --color-surface-300: #B0B0A5;
+  --color-surface-400: #949488;
+  --color-surface-500: #7C7C70;
+  --color-surface-600: #626258;
+  --color-surface-700: #4A4A44;
+  --color-surface-800: #363632;
+  --color-surface-850: #282826;
+  --color-surface-900: #1E1E1C;
+  --color-surface-950: #161615;
 
   --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
@@ -46,8 +46,8 @@
   }
 
   @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 8px rgba(200, 155, 90, 0.15); }
-    50% { box-shadow: 0 0 20px rgba(200, 155, 90, 0.3); }
+    0%, 100% { box-shadow: 0 0 8px rgba(212, 168, 96, 0.15); }
+    50% { box-shadow: 0 0 20px rgba(212, 168, 96, 0.3); }
   }
 }
 
@@ -93,7 +93,7 @@
   }
 
   ::selection {
-    background-color: rgb(200 155 90 / 0.3);
+    background-color: rgb(212 168 96 / 0.35);
     color: var(--color-surface-50);
   }
 }
@@ -107,11 +107,11 @@
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
     transition: all 0.15s;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
   .btn-primary:hover {
     background-color: var(--color-brand-500);
-    box-shadow: 0 4px 6px -1px rgba(200, 155, 90, 0.1), 0 2px 4px -2px rgba(200, 155, 90, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(212, 168, 96, 0.15), 0 2px 4px -2px rgba(212, 168, 96, 0.1);
   }
   .btn-primary:active {
     background-color: var(--color-brand-700);
@@ -123,7 +123,7 @@
   }
   .btn-primary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(200, 155, 90, 0.5);
+    box-shadow: 0 0 0 2px rgba(212, 168, 96, 0.5);
   }
 
   /* ── Secondary / outline button ── */
@@ -133,7 +133,7 @@
     font-weight: 500;
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
-    border: 1px solid rgba(61, 61, 54, 0.5);
+    border: 1px solid rgba(74, 74, 68, 0.5);
     transition: all 0.15s;
   }
   .btn-secondary:hover {
@@ -148,7 +148,7 @@
   }
   .btn-secondary:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(200, 155, 90, 0.4);
+    box-shadow: 0 0 0 2px rgba(212, 168, 96, 0.4);
   }
 
   /* ── Ghost button (minimal) ── */
@@ -167,25 +167,25 @@
   }
   .btn-ghost:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(200, 155, 90, 0.4);
+    box-shadow: 0 0 0 2px rgba(212, 168, 96, 0.4);
   }
 
   /* ── Card container ── */
   .card {
     background-color: var(--color-surface-850);
-    border: 1px solid rgba(42, 42, 38, 0.8);
+    border: 1px solid rgba(54, 54, 50, 0.8);
     border-radius: 0.75rem;
     padding: 1.25rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   /* ── Card with hover lift ── */
   .card-hover {
     background-color: var(--color-surface-850);
-    border: 1px solid rgba(42, 42, 38, 0.8);
+    border: 1px solid rgba(54, 54, 50, 0.8);
     border-radius: 0.75rem;
     padding: 1.25rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     transition: all 0.2s;
   }
   .card-hover:hover {
@@ -205,8 +205,8 @@
   /* ── Text inputs / selects ── */
   .input {
     width: 100%;
-    background-color: var(--color-surface-900);
-    border: 1px solid rgba(61, 61, 54, 0.7);
+    background-color: var(--color-surface-950);
+    border: 1px solid rgba(74, 74, 68, 0.7);
     color: var(--color-surface-100);
     border-radius: 0.5rem;
     padding: 0.625rem 0.875rem;
@@ -217,8 +217,8 @@
     color: var(--color-surface-500);
   }
   .input:focus {
-    border-color: rgba(200, 155, 90, 0.6);
-    box-shadow: 0 0 0 1px rgba(200, 155, 90, 0.3);
+    border-color: rgba(212, 168, 96, 0.6);
+    box-shadow: 0 0 0 1px rgba(212, 168, 96, 0.3);
     outline: none;
   }
 
@@ -263,8 +263,8 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    background-color: rgba(26, 26, 24, 0.6);
-    border: 1px solid rgba(42, 42, 38, 0.5);
+    background-color: rgba(40, 40, 38, 0.5);
+    border: 1px solid rgba(54, 54, 50, 0.5);
     border-radius: 0.5rem;
     font-size: 0.875rem;
   }

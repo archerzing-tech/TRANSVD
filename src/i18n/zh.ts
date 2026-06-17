@@ -52,7 +52,7 @@ const zh: Record<string, string> = {
   // DropZone
   "dz.title": "拖放视频文件到此处",
   "dz.hint": "或点击选择文件",
-  "dz.supported": "支持 MP4, WebM, MKV, MOV, AVI, GIF 等格式",
+  "dz.supported": "支持 MP4, WebM, MKV, MOV, AVI, GIF, M3U8 等格式",
   "dz.privacy": "所有处理均在本地完成 · 不上传任何数据",
   "dz.loading_file": "正在加载文件...",
 

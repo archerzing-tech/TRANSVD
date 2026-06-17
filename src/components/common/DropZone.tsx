@@ -15,7 +15,7 @@ export default function DropZone({ onFileSelected }: DropZoneProps) {
 
   const handleFile = useCallback(
     async (file: File) => {
-      if (!file.type.startsWith("video/") && !file.name.match(/\.(mp4|webm|mkv|mov|avi|gif|ts|mts|m2ts|mp3|aac|wav|ogg|flac)$/i)) {
+      if (!file.type.startsWith("video/") && !file.name.match(/\.(mp4|webm|mkv|mov|avi|gif|ts|mts|m2ts|m3u8|mp3|aac|wav|ogg|flac)$/i)) {
         return;
       }
       setLoading(true);
@@ -74,7 +74,7 @@ export default function DropZone({ onFileSelected }: DropZoneProps) {
       <input
         ref={inputRef}
         type="file"
-        accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.avi,.gif,.ts,.mts,.m2ts,.mp3,.aac,.wav,.ogg,.flac"
+        accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.avi,.gif,.ts,.mts,.m2ts,.m3u8,.mp3,.aac,.wav,.ogg,.flac"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -125,7 +125,7 @@ export default function DropZone({ onFileSelected }: DropZoneProps) {
 
           {/* Supported formats bar */}
           <div className="flex flex-wrap justify-center gap-1.5 mt-4">
-            {["MP4", "WebM", "MKV", "MOV", "AVI", "GIF", "MP3"].map((fmt) => (
+            {["MP4", "WebM", "MKV", "MOV", "AVI", "GIF", "M3U8", "MP3"].map((fmt) => (
               <span key={fmt} className="px-2 py-0.5 text-[10px] font-mono text-surface-600 bg-surface-850 rounded-md border border-surface-800/50">
                 {fmt}
               </span>

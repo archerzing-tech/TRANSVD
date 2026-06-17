@@ -26,6 +26,9 @@ export default function Header({ onHome }: HeaderProps) {
           <span className="text-[11px] text-surface-500 font-medium hidden sm:inline">
             {t("app.subtitle")}
           </span>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-surface-800/60 text-surface-500 font-mono border border-surface-700/50 leading-none hidden sm:inline">
+            v{__APP_VERSION__}
+          </span>
         </div>
       </button>
 

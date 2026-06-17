@@ -62,6 +62,19 @@ export class NativeFFmpeg {
   private _progressListeners: ProgressCallback[] = [];
   private _logListeners: LogCallback[] = [];
 
+  // Map of logical file names → original file paths (for m3u8 / HLS)
+  // When present, exec() uses the original path instead of the temp dir path
+  private originalPaths: Map<string, string> = new Map();
+
+  /**
+   * Register an original file path for logical file name.
+   * Useful for playlist files (m3u8) that reference external segments.
+   * When exec() resolves this file's name, it'll use the original path directly.
+   */
+  setOriginalPath(name: string, originalPath: string): void {
+    this.originalPaths.set(name, originalPath);
+  }
+
   /** Emulates ffmpeg.on("progress", cb) */
   on(event: "progress" | "log", cb: (...args: unknown[]) => void): void {
     if (event === "progress") {
@@ -108,7 +121,7 @@ export class NativeFFmpeg {
     // Only resolve args that are clearly file paths:
     //   * the arg immediately after -i or -y (input / output files)
     //   * or any arg ending with a video/audio extension
-    const EXT_RE = /\.(mp4|webm|mkv|mov|avi|gif|mp3|aac|wav|ogg|flac|jpg|jpeg|png|srt|ass|vtt)$/i;
+    const EXT_RE = /\.(mp4|webm|mkv|mov|avi|gif|m3u8|mp3|aac|wav|ogg|flac|jpg|jpeg|png|srt|ass|vtt)$/i;
     const fullArgs: string[] = [];
     for (let i = 0; i < args.length; i++) {
       const a = args[i];
@@ -117,7 +130,13 @@ export class NativeFFmpeg {
         NativeFFmpeg.FILE_FLAGS.has(prev) ||  // after -i, -y, etc.
         EXT_RE.test(a)                        // has a known extension
       ) {
-        fullArgs.push(`${this.absTd}/${a}`);
+        // Check if this file has an original path override (e.g. m3u8 playlists)
+        const origPath = this.originalPaths.get(a);
+        if (origPath) {
+          fullArgs.push(origPath);
+        } else {
+          fullArgs.push(`${this.absTd}/${a}`);
+        }
       } else {
         fullArgs.push(a);
       }
@@ -196,6 +215,7 @@ export class NativeFFmpeg {
     this._killed = false;
     this._progressListeners = [];
     this._logListeners = [];
+    this.originalPaths.clear();
   }
 
   private async ensureReady(): Promise<string> {
