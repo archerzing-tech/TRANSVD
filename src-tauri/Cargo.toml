@@ -1,6 +1,6 @@
 [package]
 name = "transvd"
-version = "1.4.2"
+version = "1.4.3"
 description = "TRANSVD - Desktop video editor powered by ffmpeg.wasm"
 authors = ["TRANVD"]
 edition = "2021"

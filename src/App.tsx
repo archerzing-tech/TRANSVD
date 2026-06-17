@@ -55,7 +55,13 @@ export default function App() {
   const handleFileSelected = useCallback((file: VideoFile) => {
     setVideo(file);
     const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
-    setNativeInputInfo(file.path, "input" + ext);
+    // Only register original path for m3u8/HLS playlists (needs relative segment resolution)
+    // For all other files, ffmpeg uses the temp dir copy — avoids encoding issues with non-ASCII paths
+    if (ext.toLowerCase() === ".m3u8") {
+      setNativeInputInfo(file.path, "input" + ext);
+    } else {
+      setNativeInputInfo(null, null);
+    }
   }, []);
 
   const handleOpenFile = useCallback(async () => {
@@ -63,7 +69,11 @@ export default function App() {
     if (file) {
       setVideo(file);
       const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
-      setNativeInputInfo(file.path, "input" + ext);
+      if (ext.toLowerCase() === ".m3u8") {
+        setNativeInputInfo(file.path, "input" + ext);
+      } else {
+        setNativeInputInfo(null, null);
+      }
     }
   }, []);
 

@@ -1,6 +1,6 @@
 {
   "name": "transvd",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Desktop video editor powered by ffmpeg.wasm — Tauri 2.x port of ffmpeg-webCLI",
   "type": "module",
   "scripts": {
