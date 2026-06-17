@@ -101,7 +101,7 @@ jobs:
           LATEST_URL=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest \
             | grep 'browser_download_url' \
-            | grep 'win64-gpl' \
+            | grep -F 'win64-gpl.zip' \
             | head -1 \
             | cut -d'"' -f4)
           echo "Downloading from: $LATEST_URL"
