@@ -83,6 +83,7 @@ export interface UseFFmpegReturn extends FFmpegState {
   progress: number;
   log: string[];
   cancelling: boolean;
+  running: boolean;
   init: () => Promise<void>;
   run: (action: (ff: FFmpeg) => Promise<void>) => Promise<void>;
   cancel: () => void;
@@ -218,6 +219,7 @@ export function useFFmpeg(): UseFFmpegReturn {
     ready,
     progress,
     log,
+    running: globalRunning,
     cancelling: globalCancelling,
     init,
     run,

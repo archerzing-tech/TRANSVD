@@ -1,6 +1,6 @@
 {
   "name": "transvd",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Desktop video editor powered by ffmpeg.wasm — Tauri 2.x port of ffmpeg-webCLI",
   "type": "module",
   "scripts": {
@@ -29,6 +29,7 @@
     "react-router-dom": "^7.18.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/vite": "^4.3.1",
     "@tauri-apps/cli": "^2.11.2",
     "@types/react": "^19.2.17",

@@ -328,6 +328,13 @@ export const IconLoading: FC<IconProps> = (props) => (
   </Icon>
 );
 
+export const IconClock: FC<IconProps> = (props) => (
+  <Icon {...props}>
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </Icon>
+);
+
 // ── Operation icon map ──
 
 import type { OperationId } from "../types";
