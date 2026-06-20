@@ -1,7 +1,19 @@
-import { useState, useCallback, useEffect, useRef } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect, useRef } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface SideBySidePanelProps {  video: VideoFile;}export default function SideBySidePanel({ video }: SideBySidePanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [secondVideo, setSecondVideo] = useState<Uint8Array | null>(null);  const [secondName, setSecondName] = useState("");  const [layout, setLayout] = useState<"hstack" | "vstack">("hstack");  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface SideBySidePanelProps {  video: VideoFile;}
+
+export default function SideBySidePanel({ video }: SideBySidePanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [secondVideo, setSecondVideo] = useState<Uint8Array | null>(null);
+  const [secondName, setSecondName] = useState("");
+  const [layout, setLayout] = useState<"hstack" | "vstack">("hstack");
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  const inputRef = useRef<HTMLInputElement>(null);  useEffect(() => { init(); }, [init]);  const handleSecondFile = (e: React.ChangeEvent<HTMLInputElement>) => {    const file = e.target.files?.[0];    if (!file) return;    setSecondName(file.name);    file.arrayBuffer().then((buf) => setSecondVideo(new Uint8Array(buf)));  };  const handleCompare = useCallback(async () => {    if (!secondVideo) return;    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const v1Input = "video1" + ext;      const v2Input = "video2" + (secondName.match(/\.[^.]+$/)?.[0] || ".mp4");      const outputName = "comparison.mp4";      await instance.writeFile(v1Input, video.data);      await instance.writeFile(v2Input, secondVideo);      const filter = layout === "hstack"        ? "hstack=inputs=2"        : "vstack=inputs=2";      const scaleFilter = layout === "hstack"        ? `[0:v]scale=-1:480[v0];[1:v]scale=-1:480[v1];[v0][v1]${filter}`        : `[0:v]scale=640:-1[v0];[1:v]scale=640:-1[v1];[v0][v1]${filter}`;      await instance.exec([        "-i", v1Input,        "-i", v2Input,        "-filter_complex", scaleFilter,        "-c:a", "aac",        "-y", outputName,      ]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

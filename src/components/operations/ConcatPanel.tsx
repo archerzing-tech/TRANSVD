@@ -1,7 +1,18 @@
-import { useState, useCallback, useEffect, useRef } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect, useRef } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface ConcatPanelProps {  video: VideoFile;}export default function ConcatPanel({ video }: ConcatPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [secondVideo, setSecondVideo] = useState<Uint8Array | null>(null);  const [secondName, setSecondName] = useState("");  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface ConcatPanelProps {  video: VideoFile;}
+
+export default function ConcatPanel({ video }: ConcatPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [secondVideo, setSecondVideo] = useState<Uint8Array | null>(null);
+  const [secondName, setSecondName] = useState("");
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  const inputRef = useRef<HTMLInputElement>(null);  useEffect(() => { init(); }, [init]);  const handleSecondFile = (e: React.ChangeEvent<HTMLInputElement>) => {    const file = e.target.files?.[0];    if (!file) return;    setSecondName(file.name);    file.arrayBuffer().then((buf) => setSecondVideo(new Uint8Array(buf)));  };  const handleConcat = useCallback(async () => {    if (!secondVideo) return;    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const v1Input = "video1" + ext;      const v2Input = "video2" + (secondName.match(/\.[^.]+$/)?.[0] || ".mp4");      const outputName = "concatenated" + ext;      await instance.writeFile(v1Input, video.data);      await instance.writeFile(v2Input, secondVideo);      const listContent = `file '${v1Input}'\nfile '${v2Input}'\n`;      await instance.writeFile("filelist.txt", new TextEncoder().encode(listContent));      await instance.exec([        "-f", "concat",        "-safe", "0",        "-i", "filelist.txt",        "-c", "copy",        "-y", outputName,      ]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

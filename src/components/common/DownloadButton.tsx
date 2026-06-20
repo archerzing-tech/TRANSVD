@@ -15,7 +15,7 @@ export default function DownloadButton({
   filename,
   label = "Save As",
   filters,
-  className = "btn-secondary",
+  className = "btn-secondary btn-pill",
 }: DownloadButtonProps) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -52,7 +52,7 @@ export default function DownloadButton({
       </button>
       {saved && (
         <div
-          className="mt-2 flex items-center gap-1.5 text-xs text-emerald-400"
+          className="mt-2 flex items-center gap-1.5 text-xs text-status-green"
           style={{ animation: "fadeIn 0.2s ease-out" }}
         >
           <IconCheck size={12} />

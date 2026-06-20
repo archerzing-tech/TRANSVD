@@ -1,4 +1,5 @@
 import LanguageSwitcher from "../common/LanguageSwitcher";
+import ThemeSwitcher from "../common/ThemeSwitcher";
 import { useTranslation } from "../../context/LanguageContext";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { IconFilm, IconLoading } from "../../lib/icons";
@@ -22,7 +23,7 @@ export default function Header({ onHome }: HeaderProps) {
           <IconFilm size={18} className="text-brand-500" />
         </div>
         <div className="flex items-baseline gap-2">
-          <h1 className="text-base font-bold text-surface-50 tracking-tight">TRANSVD</h1>
+          <h1 className="text-base font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
           <span className="text-[11px] text-surface-500 font-medium hidden sm:inline">
             {t("app.subtitle")}
           </span>
@@ -33,8 +34,9 @@ export default function Header({ onHome }: HeaderProps) {
       </button>
 
       {/* Right side */}
-      <div className="ml-auto flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-2">
         <FFmpegStatus />
+        <ThemeSwitcher />
         <LanguageSwitcher />
       </div>
     </header>
@@ -57,9 +59,9 @@ function FFmpegStatus() {
 
   if (ready) {
     return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/30 border border-emerald-900/30">
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/40" />
-        <span className="text-xs text-emerald-400 font-medium">ffmpeg</span>
+      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg badge-status-green">
+        <span className="w-1.5 h-1.5 rounded-full bg-status-green-dot shadow-sm shadow-emerald-500/40" />
+        <span className="text-xs text-status-green font-medium">ffmpeg</span>
       </div>
     );
   }

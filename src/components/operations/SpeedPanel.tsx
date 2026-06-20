@@ -1,8 +1,37 @@
-import { useState, useCallback, useEffect } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface SpeedPanelProps {  video: VideoFile;}export default function SpeedPanel({ video }: SpeedPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [speed, setSpeed] = useState(1.0);  const [preservePitch, setPreservePitch] = useState(true);  const [outputUrl, setOutputUrl] = useState<string | null>(null);
-  const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  useEffect(() => { init(); }, [init]);  const handleSpeed = useCallback(async () => {    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const inputName = "input" + ext;      const outputName = "speed" + ext;      await instance.writeFile(inputName, video.data);      const setpts = 1 / speed;      if (preservePitch) {        const tempo = speed < 0.5 ? 0.5 : speed > 2.0 ? 2.0 : speed;        const atempo = `atempo=${tempo.toFixed(2)}`;        await instance.exec([          "-i", inputName,          "-c:v", "libx264",          "-vf", `setpts=${setpts.toFixed(2)}*PTS`,          "-af", atempo,          "-y", outputName,        ]);      } else {        await instance.exec([          "-i", inputName,          "-c:v", "libx264",          "-vf", `setpts=${setpts.toFixed(2)}*PTS`,          "-an",          "-y", outputName,        ]);      }      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });
+interface SpeedPanelProps {  video: VideoFile;}
+
+export default function SpeedPanel({ video }: SpeedPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [speed, setSpeed] = useState(1.0);
+  const [preservePitch, setPreservePitch] = useState(true);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
+  const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  useEffect(() => { init(); }, [init]);  const handleSpeed = useCallback(async () => {    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const inputName = "input" + ext;      const outputName = "speed" + ext;      await instance.writeFile(inputName, video.data);      const setpts = 1 / speed;
+      if (preservePitch) {
+        // Chain atempo filters to support speeds outside [0.5, 2.0]
+        // atempo only accepts 0.5–2.0, so decompose into a product
+        // e.g. speed=3.0 → atempo=2.0,atempo=1.5
+        const atempoFilters: string[] = [];
+        let remaining = speed;
+        while (remaining > 2.0) {
+          atempoFilters.push("atempo=2.0");
+          remaining /= 2.0;
+        }
+        while (remaining < 0.5) {
+          atempoFilters.push("atempo=0.5");
+          remaining /= 0.5;
+        }
+        if (Math.abs(remaining - 1.0) > 0.001) {
+          atempoFilters.push(`atempo=${remaining.toFixed(2)}`);
+        }
+        const atempo = atempoFilters.join(",");        await instance.exec([          "-i", inputName,          "-c:v", "libx264",          "-vf", `setpts=${setpts.toFixed(2)}*PTS`,          "-af", atempo,          "-y", outputName,        ]);      } else {        await instance.exec([          "-i", inputName,          "-c:v", "libx264",          "-vf", `setpts=${setpts.toFixed(2)}*PTS`,          "-an",          "-y", outputName,        ]);      }      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });
       setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

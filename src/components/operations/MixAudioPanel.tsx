@@ -1,7 +1,19 @@
-import { useState, useCallback, useEffect, useRef } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect, useRef } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface MixAudioPanelProps {  video: VideoFile;}export default function MixAudioPanel({ video }: MixAudioPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);  const [audioName, setAudioName] = useState("");  const [mixVolume, setMixVolume] = useState(0.5);  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface MixAudioPanelProps {  video: VideoFile;}
+
+export default function MixAudioPanel({ video }: MixAudioPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [audioFile, setAudioFile] = useState<Uint8Array | null>(null);
+  const [audioName, setAudioName] = useState("");
+  const [mixVolume, setMixVolume] = useState(0.5);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  const inputRef = useRef<HTMLInputElement>(null);  useEffect(() => { init(); }, [init]);  const handleAudioFile = (e: React.ChangeEvent<HTMLInputElement>) => {    const file = e.target.files?.[0];    if (!file) return;    setAudioName(file.name);    file.arrayBuffer().then((buf) => setAudioFile(new Uint8Array(buf)));  };  const handleMix = useCallback(async () => {    if (!audioFile) return;    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const vExt = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const aExt = audioName.match(/\.[^.]+$/)?.[0] || ".mp3";      const vInput = "video" + vExt;      const aInput = "bgmusic" + aExt;      const outputName = "mixed" + vExt;      await instance.writeFile(vInput, video.data);      await instance.writeFile(aInput, audioFile);      await instance.exec([        "-i", vInput,        "-i", aInput,        "-filter_complex", `[1:a]volume=${mixVolume.toFixed(2)}[bg];[0:a][bg]amix=inputs=2:duration=first:dropout_transition=2`,        "-c:v", "copy",        "-y", outputName,      ]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

@@ -1,6 +1,6 @@
 const en: Record<string, string> = {
   // App
-  "app.title": "TRANSVD — Desktop Video Editor",
+  "app.title": "TRANSVD",
   "app.subtitle": "Desktop Video Editor",
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
@@ -268,6 +268,12 @@ const en: Record<string, string> = {
   "raw.output_ext": "Output Extension",
   "raw.run": "Run Command",
   "raw.running": "Running...",
+
+  // Theme
+  "theme.dark": "Dark",
+  "theme.light": "Light",
+  "theme.switch_dark": "Switch to Dark Mode",
+  "theme.switch_light": "Switch to Light Mode",
 
   // Language
   "lang.zh": "中文",

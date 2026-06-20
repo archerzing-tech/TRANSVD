@@ -1,7 +1,7 @@
 const zh: Record<string, string> = {
   // App
-  "app.title": "TRANSVD — 桌面视频编辑器",
-  "app.subtitle": "桌面视频编辑器",
+  "app.title": "视频转换工具箱",
+  "app.subtitle": "桌面视频编辑工具",
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
   // Operations sidebar
@@ -268,6 +268,12 @@ const zh: Record<string, string> = {
   "raw.output_ext": "输出扩展名",
   "raw.run": "运行命令",
   "raw.running": "正在运行...",
+
+  // Theme
+  "theme.dark": "深色",
+  "theme.light": "浅色",
+  "theme.switch_dark": "切换到深色模式",
+  "theme.switch_light": "切换到浅色模式",
 
   // Language
   "lang.zh": "中文",

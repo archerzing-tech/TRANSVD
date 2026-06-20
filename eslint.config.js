@@ -18,7 +18,7 @@ export default tseslint.config(
         "warn",
         {
           allowConstantExport: true,
-          allowExportNames: ["useTranslation", "OPERATION_ICONS"],
+          allowExportNames: ["useTranslation", "useTheme", "OPERATION_ICONS"],
         },
       ],
       "@typescript-eslint/no-unused-vars": [

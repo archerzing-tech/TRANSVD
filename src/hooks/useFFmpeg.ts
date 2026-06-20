@@ -1,7 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createFFmpeg, setGlobalProgressCallback, setGlobalLogCallback } from "../lib/ffmpeg";
-import { NativeFFmpeg, isTauriContext } from "../lib/native-ffmpeg";
+import { NativeFFmpeg, getPlatform } from "../lib/native-ffmpeg";
+import type { Platform } from "../lib/native-ffmpeg";
 
 // ── Module-level state ──────────────────────────────────────────
 // Used only for the WASM fallback path.
@@ -14,6 +15,7 @@ let globalLoadPhase = "";
 let globalLoadPercent = 0;
 let globalRunning = false;
 let globalCancelling = false;
+let globalPlatform: Platform = "browser"; // cached after first check
 let globalUseNative = false; // cached after first check
 let currentNativeFFmpeg: NativeFFmpeg | null = null;
 
@@ -96,12 +98,13 @@ export function useFFmpeg(): UseFFmpegReturn {
   const [, forceUpdate] = useState(0);
   const runningRef = useRef(false);
 
-  // Auto-detect Tauri context once
+  // Auto-detect platform once
   useEffect(() => {
-    isTauriContext().then((yes) => {
-      globalUseNative = yes;
-      if (yes) {
-        // Mark as ready immediately — no WASM to load
+    getPlatform().then((platform) => {
+      globalPlatform = platform;
+      globalUseNative = platform === "desktop"; // only desktop uses native sidecar
+      if (globalUseNative) {
+        // Desktop native: no WASM to load
         globalLoaded = true;
         globalLoading = false;
         notify();

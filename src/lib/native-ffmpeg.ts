@@ -27,16 +27,36 @@ async function getPath() {
 let tempDirCounter = 0;
 let _isTauri: boolean | null = null;
 
-export async function isTauriContext(): Promise<boolean> {
-  if (_isTauri !== null) return _isTauri;
+export type Platform = "desktop" | "android" | "browser";
+
+let _platform: Platform | null = null;
+
+export async function getPlatform(): Promise<Platform> {
+  if (_platform !== null) return _platform;
   try {
     const { appCacheDir } = await getPath();
     await appCacheDir();
-    _isTauri = true;
+    // It's a Tauri context — check if it's Android
+    try {
+      const { type } = await import("@tauri-apps/api/platform");
+      if ((await type()) === "android") {
+        _platform = "android";
+      } else {
+        _platform = "desktop";
+      }
+    } catch {
+      // Fallback: check user agent for Android
+      _platform = navigator.userAgent.includes("Android") ? "android" : "desktop";
+    }
   } catch {
-    _isTauri = false;
+    _platform = "browser";
   }
-  return _isTauri;
+  return _platform;
+}
+
+/** @deprecated Use getPlatform() instead */
+export async function isTauriContext(): Promise<boolean> {
+  return (await getPlatform()) !== "browser";
 }
 
 async function createTempDir(): Promise<string> {

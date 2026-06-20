@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import type { VideoFile } from "../../App";
+import type { VideoFile } from "../../types";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { useTranslation } from "../../context/LanguageContext";
 import ProcessingOverlay from "../common/ProcessingOverlay";
@@ -12,9 +12,13 @@ interface ThumbnailPanelProps {
 export default function ThumbnailPanel({ video }: ThumbnailPanelProps) {
   const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();
   const { t } = useTranslation();
+
   const [time, setTime] = useState(1);
+
   const [format, setFormat] = useState<"jpg" | "png">("jpg");
+
   const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);
 
   useEffect(() => { init(); }, [init]);
@@ -54,7 +58,7 @@ export default function ThumbnailPanel({ video }: ThumbnailPanelProps) {
           <label className="block text-sm text-surface-400 mb-2">{t("thumb.format")}</label>
           <div className="flex gap-2">
             <button onClick={() => setFormat("jpg")}
-              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 px-4 py-2.5 rounded-lg btn-pill text-sm font-medium transition-all ${
                 format === "jpg"
                   ? "bg-brand-600 text-white shadow-sm shadow-brand-500/20"
                   : "bg-surface-800 text-surface-300 hover:bg-surface-700"
@@ -62,7 +66,7 @@ export default function ThumbnailPanel({ video }: ThumbnailPanelProps) {
               JPEG
             </button>
             <button onClick={() => setFormat("png")}
-              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 px-4 py-2.5 rounded-lg btn-pill text-sm font-medium transition-all ${
                 format === "png"
                   ? "bg-brand-600 text-white shadow-sm shadow-brand-500/20"
                   : "bg-surface-800 text-surface-300 hover:bg-surface-700"

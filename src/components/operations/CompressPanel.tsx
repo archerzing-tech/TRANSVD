@@ -1,7 +1,17 @@
-import { useState, useCallback, useEffect } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface CompressPanelProps {  video: VideoFile;}const PRESETS = [  { label: "Ultra Fast", value: "ultrafast" },  { label: "Fast", value: "fast" },  { label: "Medium", value: "medium" },  { label: "Slow", value: "slow" },  { label: "Very Slow", value: "veryslow" },];export default function CompressPanel({ video }: CompressPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [crf, setCrf] = useState(23);  const [preset, setPreset] = useState("medium");  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface CompressPanelProps {  video: VideoFile;}const PRESETS = [  { label: "Ultra Fast", value: "ultrafast" },  { label: "Fast", value: "fast" },  { label: "Medium", value: "medium" },  { label: "Slow", value: "slow" },  { label: "Very Slow", value: "veryslow" },];
+export default function CompressPanel({ video }: CompressPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [crf, setCrf] = useState(23);
+  const [preset, setPreset] = useState("medium");
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  useEffect(() => { init(); }, [init]);  const handleCompress = useCallback(async () => {    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const inputName = "input" + ext;      const outputName = "compressed" + ext;      await instance.writeFile(inputName, video.data);      await instance.exec([        "-i", inputName,        "-c:v", "libx264",        "-crf", String(crf),        "-preset", preset,        "-c:a", "aac",        "-movflags", "+faststart",        "-y", outputName,      ]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

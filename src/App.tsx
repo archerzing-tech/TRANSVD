@@ -1,10 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
 import { LanguageProvider } from "./context/LanguageContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { useFFmpeg, setNativeInputInfo } from "./hooks/useFFmpeg";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
 import DropZone from "./components/common/DropZone";
 import OperationPanel from "./components/layout/OperationPanel";
+import ThemeSwitcher from "./components/common/ThemeSwitcher";
+import LanguageSwitcher from "./components/common/LanguageSwitcher";
 import { useTranslation } from "./context/LanguageContext";
 import { IconFilm, IconLoading } from "./lib/icons";
 import type { OperationId, VideoFile } from "./types";
@@ -14,22 +17,22 @@ export { OPERATIONS } from "./types";
 
 async function pickAndReadFile(): Promise<VideoFile | null> {
   try {
-    const { open } = await import("@tauri-apps/plugin-dialog");
+    const { invoke } = await import("@tauri-apps/api/core");
+    const fileInfo = await invoke<{ name: string; path: string; size: number } | null>("pick_video_file");
+    if (!fileInfo) return null;
+
+    // Use @tauri-apps/plugin-fs readFile() which returns Uint8Array natively,
+    // avoiding the ~8x memory overhead of JSON-serialized number[] via IPC.
     const { readFile } = await import("@tauri-apps/plugin-fs");
-    const selected = await open({
-      multiple: false,
-      filters: [
-        { name: "Video Files", extensions: ["mp4", "webm", "mkv", "mov", "avi", "gif", "ts", "mts", "m2ts", "m3u8"] },
-        { name: "Audio Files", extensions: ["mp3", "aac", "wav", "ogg", "flac"] },
-      ],
-    });
-    if (!selected) return null;
-    const path = selected as string;
-    const name = path.split(/[/\\]/).pop() || path;
-    const data = await readFile(path);
-    return { name, path, size: data.length, data };
-  } catch {
-    // Not in Tauri – use browser file input
+    const data = await readFile(fileInfo.path);
+    return {
+      name: fileInfo.name,
+      path: fileInfo.path,
+      size: fileInfo.size,
+      data,
+    };
+  } catch (err) {
+    console.warn("Tauri file read failed, falling back to browser input:", err);
   }
 
   return new Promise((resolve) => {
@@ -83,6 +86,7 @@ export default function App() {
   }, []);
 
   return (
+    <ThemeProvider>
     <LanguageProvider>
       {!video ? <LandingPage onFileSelected={handleFileSelected} /> : (
         <div className="h-full flex flex-col">
@@ -104,6 +108,7 @@ export default function App() {
         </div>
       )}
     </LanguageProvider>
+    </ThemeProvider>
   );
 }
 
@@ -171,23 +176,27 @@ function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => voi
   const categories = useOperationCategories();
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-b from-surface-900 via-surface-950 to-surface-950 selection:bg-brand-500/30 overflow-y-auto">
+    <div className="h-full flex flex-col bg-surface-950 selection:bg-brand-500/30 overflow-y-auto">
       {/* Ambient top gloss */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-brand-500/[0.03] to-transparent pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/10 to-transparent" />
 
       {/* Header */}
-      <header className="relative flex items-center justify-center px-6 pt-8 pb-2 shrink-0">
+      <header className="relative flex items-center justify-between px-6 pt-8 pb-2 shrink-0">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
             <IconFilm size={22} className="text-brand-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-surface-50 tracking-tight">TRANSVD</h1>
+            <h1 className="text-2xl font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
             <p className="text-xs text-surface-500 font-medium tracking-wider uppercase">
               {t("app.subtitle")}
             </p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher />
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -217,7 +226,7 @@ function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => voi
             )}
             {ready && (
               <div className="text-xs text-surface-600 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/70" />
+                <span className="w-1.5 h-1.5 rounded-full bg-status-green-dot opacity-70" />
                 ffmpeg ready
               </div>
             )}

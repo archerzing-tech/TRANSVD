@@ -3711,10 +3711,9 @@ dependencies = [
 
 [[package]]
 name = "transvd"
-version = "1.4.4"
+version = "2.0.0"
 dependencies = [
  "serde",
- "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",

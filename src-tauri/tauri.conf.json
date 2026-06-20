@@ -1,18 +1,18 @@
 {
   "$schema": "https://raw.githubusercontent.com/nicegui/tauri-v2/main/schema/tauri.conf.json",
   "productName": "TRANSVD",
-  "version": "1.4.4",
+  "version": "2.0.0",
   "identifier": "com.transvd.app",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": "bun run dev",
+    "beforeBuildCommand": "bun run build"
   },
   "app": {
     "windows": [
       {
-        "title": "TRANSVD \u2014 Desktop Video Editor",
+        "title": "TRANSVD",
         "width": 1200,
         "height": 800,
         "minWidth": 900,
@@ -49,6 +49,9 @@
       "nsis": {
         "installMode": "currentUser"
       }
+    },
+    "android": {
+      "minSdkVersion": 28
     }
   }
 }

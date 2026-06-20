@@ -1,7 +1,18 @@
-import { useState, useCallback, useEffect } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface TrimPanelProps {  video: VideoFile;}export default function TrimPanel({ video }: TrimPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [start, setStart] = useState(0);  const [end, setEnd] = useState(10);  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface TrimPanelProps {  video: VideoFile;}
+
+export default function TrimPanel({ video }: TrimPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(10);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  useEffect(() => { init(); }, [init]);  const handleTrim = useCallback(async () => {    setOutputUrl(null);    const duration = end - start;    if (duration <= 0) return;    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const inputName = "input" + ext;      const outputName = "trimmed" + ext;      await instance.writeFile(inputName, video.data);      await instance.exec([        "-ss", String(start),        "-t", String(duration),        "-i", inputName,        "-c", "copy",        "-y", outputName,      ]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

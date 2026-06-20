@@ -96,23 +96,25 @@ export default function ProcessingOverlay({
   const stateStyle = cancelling
     ? "border-red-900/40 bg-red-950/10"
     : isComplete
-    ? "border-emerald-800/50 bg-emerald-950/20"
+    ? "badge-status-green border-status-green-divider"
     : isProcessing || isIndeterminate
     ? "border-brand-500/30 bg-brand-950/20 shadow-sm shadow-brand-500/5"
     : "border-surface-800 bg-surface-850";
 
   const textColor = cancelling
-    ? "text-red-400"
+    ? "text-status-red"
     : isComplete
-    ? "text-emerald-400"
-    : isProcessing || isIndeterminate
+    ? "text-status-green"
+    : isProcessing
     ? "text-brand-400"
-    : "text-surface-500";
+    : isIndeterminate
+    ? "text-brand-400/70"
+    : "text-surface-600";
 
   const percentColor = cancelling
-    ? "text-red-400"
+    ? "text-status-red"
     : isComplete
-    ? "text-emerald-400"
+    ? "text-status-green"
     : isProcessing
     ? "text-brand-400"
     : isIndeterminate
@@ -127,12 +129,12 @@ export default function ProcessingOverlay({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           {isComplete ? (
-            <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <IconCheck size={14} className="text-emerald-400" />
+            <div className="w-6 h-6 rounded-full bg-status-green-icon flex items-center justify-center">
+              <IconCheck size={14} className="text-status-green" />
             </div>
           ) : cancelling ? (
             <div className="w-6 h-6 rounded-full bg-red-500/20 flex items-center justify-center">
-              <IconX size={14} className="text-red-400" />
+              <IconX size={14} className="text-status-red" />
             </div>
           ) : isProcessing ? (
             <IconLoading size={16} className="text-brand-500 animate-spin-slow" />
@@ -172,7 +174,7 @@ export default function ProcessingOverlay({
           cancelling
             ? "bg-red-950/30"
             : isComplete
-            ? "bg-emerald-950/40"
+            ? "bg-status-green-track"
             : "bg-surface-800"
         }`}
       >
@@ -196,7 +198,7 @@ export default function ProcessingOverlay({
           <div
             className={`h-full rounded-full transition-all duration-700 ease-out ${
               isComplete
-                ? "bg-emerald-500"
+                ? "bg-status-green-dot"
                 : cancelling
                 ? "bg-red-600/50"
                 : "bg-gradient-to-r from-brand-600 to-brand-500"
@@ -253,7 +255,7 @@ export default function ProcessingOverlay({
             <button
               onClick={onCancel}
               className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                         text-xs font-medium text-red-400 hover:text-red-300
+                         text-xs font-medium text-status-red text-status-red-hover
                          bg-red-950/30 hover:bg-red-950/50 border border-red-900/40
                          transition-all duration-150 active:scale-95"
             >
@@ -279,9 +281,9 @@ export default function ProcessingOverlay({
 
       {/* ── Completion info ── */}
       {isComplete && elapsed > 0 && (
-        <div className="mt-3 pt-3 border-t border-emerald-900/30">
+        <div className="mt-3 pt-3 border-t border-status-green-divider">
           <div className="flex items-center gap-2 text-[11px] text-surface-500 font-mono">
-            <IconClock size={11} className="text-emerald-400/70" />
+            <IconClock size={11} className="text-status-green-muted" />
             Completed in {formatTime(elapsed)}
           </div>
         </div>

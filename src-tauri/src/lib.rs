@@ -1,6 +1,7 @@
 mod commands;
 
 #[cfg(debug_assertions)]
+#[cfg(debug_assertions)]
 use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -10,7 +11,7 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|_app| {
-            #[cfg(debug_assertions)]
+            #[cfg(all(debug_assertions, not(target_os = "android")))]
             if let Some(window) = _app.get_webview_window("main") {
                 window.open_devtools();
             }

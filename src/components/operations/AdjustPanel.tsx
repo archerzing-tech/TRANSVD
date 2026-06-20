@@ -1,7 +1,21 @@
-import { useState, useCallback, useEffect } from "react";import type { VideoFile } from "../../App";import { useFFmpeg } from "../../hooks/useFFmpeg";import { useTranslation } from "../../context/LanguageContext";import ProcessingOverlay from "../common/ProcessingOverlay";
+import { useState, useCallback, useEffect } from "react";
+import type { VideoFile } from "../../types";
+import { useFFmpeg } from "../../hooks/useFFmpeg";
+import { useTranslation } from "../../context/LanguageContext";
+import ProcessingOverlay from "../common/ProcessingOverlay";
 import DownloadButton from "../common/DownloadButton";
 
-interface AdjustPanelProps {  video: VideoFile;}export default function AdjustPanel({ video }: AdjustPanelProps) {  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();  const [brightness, setBrightness] = useState(0);  const [contrast, setContrast] = useState(1);  const [saturation, setSaturation] = useState(1);  const [grayscale, setGrayscale] = useState(false);  const [gamma, setGamma] = useState(1);  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+interface AdjustPanelProps {  video: VideoFile;}
+
+export default function AdjustPanel({ video }: AdjustPanelProps) {
+  const { init, run, cancel, progress, log, loaded, loading, error, cancelling, running } = useFFmpeg();  const { t } = useTranslation();
+  const [brightness, setBrightness] = useState(0);
+  const [contrast, setContrast] = useState(1);
+  const [saturation, setSaturation] = useState(1);
+  const [grayscale, setGrayscale] = useState(false);
+  const [gamma, setGamma] = useState(1);
+  const [outputUrl, setOutputUrl] = useState<string | null>(null);
+
   const [outputBlob, setOutputBlob] = useState<Blob | null>(null);  useEffect(() => { init(); }, [init]);  const handleAdjust = useCallback(async () => {    setOutputUrl(null);    await run(async (instance) => {      if (!video.data) throw new Error("No video data loaded");      const ext = video.name.match(/\.[^.]+$/)?.[0] || ".mp4";      const inputName = "input" + ext;      const outputName = "adjusted" + ext;      await instance.writeFile(inputName, video.data);      const eq = `eq=brightness=${brightness.toFixed(2)}:contrast=${contrast.toFixed(2)}:saturation=${saturation.toFixed(2)}:gamma=${gamma.toFixed(2)}`;      const vf = grayscale ? `${eq},hue=s=0` : eq;      await instance.exec(["-i", inputName, "-vf", vf, "-c:a", "copy", "-y", outputName]);      const raw = await instance.readFile(outputName);      const blob = new Blob([raw as BlobPart], { type: "video/mp4" });      setOutputBlob(blob);
       setOutputUrl(URL.createObjectURL(blob));
     });

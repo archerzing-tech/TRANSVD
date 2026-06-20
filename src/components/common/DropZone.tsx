@@ -67,7 +67,7 @@ export default function DropZone({ onFileSelected }: DropZoneProps) {
         border-2 border-dashed transition-all duration-300
         ${dragging
           ? "border-brand-500/70 bg-brand-500/[0.06] scale-[1.02] shadow-lg shadow-brand-500/10"
-          : "border-surface-800 hover:border-surface-700/70 hover:bg-surface-900/50"
+          : "dropzone-area"
         }
       `}
     >

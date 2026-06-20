@@ -44,10 +44,10 @@ export default function Sidebar({ activeOperation, onSelect }: SidebarProps) {
               key={op.id}
               onClick={() => onSelect(op.id)}
               className={`
-                w-full flex items-center gap-3 px-3 py-2 text-sm transition-all duration-150 cursor-pointer group
+                w-[calc(100%-1rem)] flex items-center gap-3 mx-2 px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer group
                 ${isActive
-                  ? "bg-brand-500/10 text-brand-400 border-r-2 border-brand-500"
-                  : "text-surface-500 hover:text-surface-300 hover:bg-surface-800/40 border-r-2 border-transparent"
+                  ? "bg-brand-500/10 text-brand-600"
+                  : "text-surface-500 hover:text-surface-300 hover:bg-surface-800/40"
                 }
                 ${collapsed ? 'justify-center px-0' : ''}
               `}
