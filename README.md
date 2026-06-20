@@ -131,7 +131,6 @@
 | 平台 | 安装包 |
 |------|--------|
 | macOS (Intel) | `.dmg` (x64) |
-| macOS (Apple Silicon) | `.dmg` (arm64) |
 | Windows 10+ | `.exe` / `.msi` |
 | Linux (WIP) | `.AppImage` / `.deb` |
 

@@ -2,7 +2,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type { FFmpeg } from "@ffmpeg/ffmpeg";
 import { createFFmpeg, setGlobalProgressCallback, setGlobalLogCallback } from "../lib/ffmpeg";
 import { NativeFFmpeg, getPlatform } from "../lib/native-ffmpeg";
-import type { Platform } from "../lib/native-ffmpeg";
 
 // ── Module-level state ──────────────────────────────────────────
 // Used only for the WASM fallback path.
@@ -15,7 +14,6 @@ let globalLoadPhase = "";
 let globalLoadPercent = 0;
 let globalRunning = false;
 let globalCancelling = false;
-let globalPlatform: Platform = "browser"; // cached after first check
 let globalUseNative = false; // cached after first check
 let currentNativeFFmpeg: NativeFFmpeg | null = null;
 
@@ -101,7 +99,6 @@ export function useFFmpeg(): UseFFmpegReturn {
   // Auto-detect platform once
   useEffect(() => {
     getPlatform().then((platform) => {
-      globalPlatform = platform;
       globalUseNative = platform === "desktop"; // only desktop uses native sidecar
       if (globalUseNative) {
         // Desktop native: no WASM to load
