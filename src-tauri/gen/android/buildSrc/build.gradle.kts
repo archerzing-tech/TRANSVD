@@ -12,6 +12,8 @@ gradlePlugin {
 }
 
 repositories {
+    // 国内镜像加速（本地调试）
+    maven { url = uri("https://maven.aliyun.com/repository/public") }
     google()
     mavenCentral()
 }

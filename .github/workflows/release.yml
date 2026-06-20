@@ -5,6 +5,17 @@ on:
     branches: [master, main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      run-desktop:
+        description: 'Build desktop (Windows + macOS)'
+        required: false
+        default: true
+        type: boolean
+      run-android:
+        description: 'Build Android APK'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -15,6 +26,7 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run-desktop }}
     strategy:
       fail-fast: false
       matrix:
@@ -139,6 +151,7 @@ jobs:
           args: ${{ matrix.args }}
 
   build-android:
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run-android }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -149,7 +162,11 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-linux-android
+          targets: |
+            aarch64-linux-android
+            armv7-linux-androideabi
+            i686-linux-android
+            x86_64-linux-android
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
@@ -171,6 +188,7 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           ndk-version: 26.1.10909125
+          packages: 'tools platform-tools platforms;android-36 build-tools;36.0.0'
 
       - name: Install frontend dependencies
         run: bun install --frozen-lockfile
@@ -192,7 +210,7 @@ jobs:
           chmod +x src-tauri/binaries/ffmpeg-aarch64-linux-android
 
       - name: Build Android APK
-        run: bun tauri android build --apk
+        run: bun tauri android build
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
