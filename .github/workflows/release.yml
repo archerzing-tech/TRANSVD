@@ -230,8 +230,37 @@ jobs:
       - name: Build Android APK
         run: bun tauri android build
 
-      - name: Upload APK
+      - name: Upload APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: transvd-android-apk
           path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+
+      - name: Upload APK to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          APK_FILE=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -type f | head -1)
+          if [ -z "$APK_FILE" ]; then
+            echo "No APK file found to upload to release"
+            exit 1
+          fi
+          echo "Uploading $APK_FILE to release ${{ github.ref_name }}..."
+          # Retry in case tauri-action hasn't created the release yet
+          UPLOADED=false
+          for i in 1 2 3 4 5; do
+            if gh release upload "${{ github.ref_name }}" "$APK_FILE" --clobber; then
+              echo "APK uploaded successfully to release ${{ github.ref_name }}"
+              UPLOADED=true
+              break
+            fi
+            echo "Attempt $i: release not ready yet, waiting 30s..."
+            sleep 30
+          done
+          if [ "$UPLOADED" = false ]; then
+            echo "ERROR: Failed to upload APK to release ${{ github.ref_name }} after 5 attempts" >&2
+            exit 1
+          fi
