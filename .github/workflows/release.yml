@@ -26,7 +26,9 @@ concurrency:
 
 jobs:
   build:
-    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run-desktop }}
+    # Desktop builds: only on branch pushes (master/main) or manual dispatch.
+    # Tag pushes (v*) only build Android APK.
+    if: ${{ (github.event_name == 'push' && github.ref_type == 'branch') || (github.event_name == 'workflow_dispatch' && inputs.run-desktop) }}
     strategy:
       fail-fast: false
       matrix:
