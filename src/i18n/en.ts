@@ -275,6 +275,15 @@ const en: Record<string, string> = {
   "theme.switch_dark": "Switch to Dark Mode",
   "theme.switch_light": "Switch to Light Mode",
 
+  // Navigation (mobile)
+  "nav.home": "Home",
+  "nav.more": "More",
+  "app.choose_operation": "Choose an operation",
+  "app.choose_operation_hint": "Select what you want to do with your video",
+  "app.tagline": "Drop a video, do almost anything. No uploads. All local.",
+  "app.quick_actions": "Quick start",
+  "app.privacy": "All processing happens locally · No data ever leaves your device",
+
   // Language
   "lang.zh": "中文",
   "lang.en": "English",

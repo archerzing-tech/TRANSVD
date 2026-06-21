@@ -3,38 +3,44 @@ import ThemeSwitcher from "../common/ThemeSwitcher";
 import { useTranslation } from "../../context/LanguageContext";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
 import { IconFilm, IconLoading } from "../../lib/icons";
+import type { VideoFile } from "../../types";
 
 interface HeaderProps {
   onHome?: () => void;
+  video?: VideoFile | null;
 }
 
-export default function Header({ onHome }: HeaderProps) {
+export default function Header({ onHome, video }: HeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <header className="bg-surface-900/95 backdrop-blur-sm border-b border-surface-800/70 px-5 py-2.5 flex items-center gap-3 shrink-0 z-20">
-      {/* Logo + Title */}
+    <header className="bg-surface-900/95 backdrop-blur-sm border-b border-surface-800/70 px-3 py-2.5 flex items-center gap-2 shrink-0 z-20 safe-area-top">
+      {/* Back/Home button */}
       <button
         onClick={onHome}
-        className="flex items-center gap-3 group cursor-pointer"
+        className="flex items-center gap-2 group cursor-pointer min-w-0"
         title={t("app.title")}
       >
-        <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center group-hover:bg-brand-500/20 group-hover:border-brand-500/30 transition-all duration-200">
-          <IconFilm size={18} className="text-brand-500" />
+        <div className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+          <IconFilm size={16} className="text-brand-500" />
         </div>
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-base font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
-          <span className="text-[11px] text-surface-500 font-medium hidden sm:inline">
-            {t("app.subtitle")}
-          </span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-surface-800/60 text-surface-500 font-mono border border-surface-700/50 leading-none hidden sm:inline">
-            v{__APP_VERSION__}
-          </span>
+        <div className="min-w-0">
+          <h1 className="text-sm font-bold text-surface-50 tracking-tight truncate max-w-[120px]">{t("app.title")}</h1>
         </div>
       </button>
 
+      {/* File name (when video loaded) */}
+      {video && (
+        <div className="hidden sm:flex items-center gap-1.5 min-w-0 flex-1">
+          <span className="text-[10px] text-surface-600">·</span>
+          <span className="text-xs text-surface-500 font-mono truncate max-w-[160px]">{video.name}</span>
+          <span className="text-[10px] text-surface-600">·</span>
+          <span className="text-[11px] text-surface-500">{(video.size / 1024 / 1024).toFixed(1)}MB</span>
+        </div>
+      )}
+
       {/* Right side */}
-      <div className="ml-auto flex items-center gap-2">
+      <div className="ml-auto flex items-center gap-1.5">
         <FFmpegStatus />
         <ThemeSwitcher />
         <LanguageSwitcher />
@@ -48,9 +54,9 @@ function FFmpegStatus() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-850 border border-surface-800/50">
-        <IconLoading size={12} className="text-brand-500 animate-spin-slow" />
-        <span className="text-xs text-surface-500">
+      <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-850 border border-surface-800/50">
+        <IconLoading size={10} className="text-brand-500 animate-spin-slow" />
+        <span className="text-[10px] text-surface-500 hidden sm:inline">
           {loadPhase} {Math.round(loadPercent)}%
         </span>
       </div>
@@ -59,17 +65,17 @@ function FFmpegStatus() {
 
   if (ready) {
     return (
-      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg badge-status-green">
-        <span className="w-1.5 h-1.5 rounded-full bg-status-green-dot shadow-sm shadow-emerald-500/40" />
-        <span className="text-xs text-status-green font-medium">ffmpeg</span>
+      <div className="flex items-center gap-1 px-2 py-1 rounded-lg badge-status-green">
+        <span className="w-1 h-1 rounded-full bg-status-green-dot shadow-sm shadow-emerald-500/40" />
+        <span className="text-[10px] text-status-green font-medium hidden sm:inline">ffmpeg</span>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-850 border border-surface-800/50">
-      <span className="w-1.5 h-1.5 rounded-full bg-surface-600" />
-      <span className="text-xs text-surface-500">ffmpeg</span>
+    <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-surface-850 border border-surface-800/50">
+      <span className="w-1 h-1 rounded-full bg-surface-600" />
+      <span className="text-[10px] text-surface-500 hidden sm:inline">ffmpeg</span>
     </div>
   );
 }

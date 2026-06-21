@@ -119,6 +119,42 @@
   }
 }
 
+/* ══════════════════════════════════════════════
+   MOBILE-SPECIFIC UTILITIES
+   ══════════════════════════════════════════════
+   Safe-area insets for notched phones, touch optimization.
+   ══════════════════════════════════════════════ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
+/* ── Touch-friendly minimum tap targets ── */
+@layer components {
+  .touch-btn {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .touch-input {
+    min-height: 44px;
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+}
+
+/* ── Prevent text size adjust on orientation change ── */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 /* ══════════════════════════════════════════════════
    LIGHT THEME — "Crisp Edge"
    

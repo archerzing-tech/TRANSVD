@@ -3,14 +3,14 @@ import { LanguageProvider } from "./context/LanguageContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { useFFmpeg, setNativeInputInfo } from "./hooks/useFFmpeg";
 import Header from "./components/layout/Header";
-import Sidebar from "./components/layout/Sidebar";
+import BottomNav from "./components/layout/BottomNav";
 import DropZone from "./components/common/DropZone";
 import OperationPanel from "./components/layout/OperationPanel";
 import ThemeSwitcher from "./components/common/ThemeSwitcher";
 import LanguageSwitcher from "./components/common/LanguageSwitcher";
 import { useTranslation } from "./context/LanguageContext";
-import { IconFilm, IconLoading } from "./lib/icons";
-import type { OperationId, VideoFile } from "./types";
+import { OPERATIONS, type OperationId, type VideoFile } from "./types";
+import { OPERATION_ICONS, IconFilm, IconLoading } from "./lib/icons";
 
 export type { OperationId, VideoFile } from "./types";
 export { OPERATIONS } from "./types";
@@ -20,21 +20,12 @@ async function pickAndReadFile(): Promise<VideoFile | null> {
     const { invoke } = await import("@tauri-apps/api/core");
     const fileInfo = await invoke<{ name: string; path: string; size: number } | null>("pick_video_file");
     if (!fileInfo) return null;
-
-    // Use @tauri-apps/plugin-fs readFile() which returns Uint8Array natively,
-    // avoiding the ~8x memory overhead of JSON-serialized number[] via IPC.
     const { readFile } = await import("@tauri-apps/plugin-fs");
     const data = await readFile(fileInfo.path);
-    return {
-      name: fileInfo.name,
-      path: fileInfo.path,
-      size: fileInfo.size,
-      data,
-    };
+    return { name: fileInfo.name, path: fileInfo.path, size: fileInfo.size, data };
   } catch (err) {
     console.warn("Tauri file read failed, falling back to browser input:", err);
   }
-
   return new Promise((resolve) => {
     const input = document.createElement("input");
     input.type = "file";
@@ -51,15 +42,17 @@ async function pickAndReadFile(): Promise<VideoFile | null> {
 
 export default function App() {
   const [video, setVideo] = useState<VideoFile | null>(null);
-  const [activeOperation, setActiveOperation] = useState<OperationId | null>(null);    const { init } = useFFmpeg();
+  const [activeOperation, setActiveOperation] = useState<OperationId | null>(null);
+  const [showOpPicker, setShowOpPicker] = useState(false);
+  const { init } = useFFmpeg();
 
   useEffect(() => { init(); }, [init]);
 
   const handleFileSelected = useCallback((file: VideoFile) => {
     setVideo(file);
+    setActiveOperation(null);
+    setShowOpPicker(true);
     const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
-    // Only register original path for m3u8/HLS playlists (needs relative segment resolution)
-    // For all other files, ffmpeg uses the temp dir copy — avoids encoding issues with non-ASCII paths
     if (ext.toLowerCase() === ".m3u8") {
       setNativeInputInfo(file.path, "input" + ext);
     } else {
@@ -71,6 +64,8 @@ export default function App() {
     const file = await pickAndReadFile();
     if (file) {
       setVideo(file);
+      setActiveOperation(null);
+      setShowOpPicker(true);
       const ext = file.name.match(/\.[^.]+$/)?.[0] || "";
       if (ext.toLowerCase() === ".m3u8") {
         setNativeInputInfo(file.path, "input" + ext);
@@ -82,150 +77,190 @@ export default function App() {
 
   const handleHome = useCallback(() => {
     setVideo(null);
+    setActiveOperation(null);
+    setShowOpPicker(false);
     setNativeInputInfo(null, null);
+  }, []);
+
+  const handleSelectOp = useCallback((id: OperationId) => {
+    setActiveOperation(id);
+    setShowOpPicker(false);
   }, []);
 
   return (
     <ThemeProvider>
     <LanguageProvider>
-      {!video ? <LandingPage onFileSelected={handleFileSelected} /> : (
-        <div className="h-full flex flex-col">
-          <Header onHome={handleHome} />
-          <div className="flex flex-1 overflow-hidden">
-            <Sidebar
-              activeOperation={activeOperation}
-              onSelect={setActiveOperation}
+      <div className="h-full flex flex-col bg-surface-950">
+        {!video ? (
+          <LandingPage onFileSelected={handleFileSelected} />
+        ) : (
+          <>
+            <Header
+              onHome={handleHome}
+              video={video}
             />
-            <main className="flex-1 overflow-y-auto p-6">
-              <OperationPanel
-                operation={activeOperation}
-                video={video}
-                onOpenFile={handleOpenFile}
-                onSelectOperation={setActiveOperation}
-              />
+            <main className="flex-1 overflow-y-auto pb-16 px-4 pt-4">
+              {!activeOperation || showOpPicker ? (
+                <OperationPicker
+                  video={video}
+                  onSelect={handleSelectOp}
+                  onOpenFile={handleOpenFile}
+                />
+              ) : (
+                <OperationPanel
+                  operation={activeOperation}
+                  video={video}
+                  onOpenFile={handleOpenFile}
+                  onSelectOperation={handleSelectOp}
+                />
+              )}
             </main>
-          </div>
-        </div>
-      )}
+            <BottomNav
+              activeOperation={activeOperation}
+              onSelect={handleSelectOp}
+              onHome={handleHome}
+              videoLoaded={true}
+            />
+          </>
+        )}
+      </div>
     </LanguageProvider>
     </ThemeProvider>
   );
 }
 
-// ── Operation categories for the showcase ──
+// ── Operation category grid ──
 
-interface OpCategory {
-  title: string;
-  subtitle: string;
-  ops: { id: OperationId; label: string }[];
-}
+const OP_CATEGORIES: { title: string; color: string; subtitle: string; ids: OperationId[] }[] = [
+  {
+    title: "Convert & Compress",
+    color: "from-amber-600/20 to-amber-700/10",
+    subtitle: "GIF, format, compress",
+    ids: ["gif", "convert", "compress"],
+  },
+  {
+    title: "Trim & Transform",
+    color: "from-blue-600/20 to-blue-700/10",
+    subtitle: "Cut, crop, rotate, speed",
+    ids: ["trim", "crop", "rotate", "resize", "speed", "reverse"],
+  },
+  {
+    title: "Audio & Effects",
+    color: "from-violet-600/20 to-violet-700/10",
+    subtitle: "Volume, fade, adjust",
+    ids: ["audio-extract", "mute", "volume", "fade", "adjust"],
+  },
+  {
+    title: "Advanced",
+    color: "from-emerald-600/20 to-emerald-700/10",
+    subtitle: "Overlay, concat, PiP...",
+    ids: ["overlay", "concat", "pip", "subtitles", "side-by-side", "mix-audio", "loop", "strip-meta", "mediainfo", "thumbnail", "raw"],
+  },
+];
 
-function useOperationCategories(): OpCategory[] {
+function OperationPicker({ video, onSelect, onOpenFile }: { video: VideoFile; onSelect: (id: OperationId) => void; onOpenFile: () => void }) {
   const { t } = useTranslation();
-  return [
-    {
-      title: "🎬 Convert & Compress",
-      subtitle: "Change formats, reduce file size",
-      ops: [
-        { id: "gif", label: t("op.gif") },
-        { id: "convert", label: t("op.convert") },
-        { id: "compress", label: t("op.compress") },
-      ],
-    },
-    {
-      title: "✂️ Trim & Transform",
-      subtitle: "Cut, crop, rotate, resize, speed up",
-      ops: [
-        { id: "trim", label: t("op.trim") },
-        { id: "crop", label: t("op.crop") },
-        { id: "rotate", label: t("op.rotate") },
-        { id: "resize", label: t("op.resize") },
-        { id: "speed", label: t("op.speed") },
-        { id: "reverse", label: t("op.reverse") },
-      ],
-    },
-    {
-      title: "🔊 Audio & Effects",
-      subtitle: "Extract audio, adjust volume, add fades",
-      ops: [
-        { id: "audio-extract", label: t("op.audio-extract") },
-        { id: "mute", label: t("op.mute") },
-        { id: "volume", label: t("op.volume") },
-        { id: "fade", label: t("op.fade") },
-        { id: "adjust", label: t("op.adjust") },
-      ],
-    },
-    {
-      title: "🔄 Advanced",
-      subtitle: "Overlay, concatenate, PiP, subtitles, and more",
-      ops: [
-        { id: "overlay", label: t("op.overlay") },
-        { id: "concat", label: t("op.concat") },
-        { id: "pip", label: t("op.pip") },
-        { id: "subtitles", label: t("op.subtitles") },
-        { id: "side-by-side", label: t("op.side-by-side") },
-        { id: "mix-audio", label: t("op.mix-audio") },
-      ],
-    },
-  ];
+
+  return (
+    <div className="animate-fade-in pb-2">
+      {/* File info bar */}
+      <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-surface-850 border border-surface-800/50">
+        <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
+          <IconFilm size={18} className="text-brand-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-surface-200 truncate">{video.name}</p>
+          <p className="text-xs text-surface-500">{(video.size / 1024 / 1024).toFixed(1)} MB</p>
+        </div>
+        <button onClick={onOpenFile} className="btn-secondary btn-sm shrink-0 text-xs">
+          {t("op.open_new")}
+        </button>
+      </div>
+
+      <h2 className="text-base font-bold text-surface-50 mb-1">{t("app.choose_operation")}</h2>
+      <p className="text-xs text-surface-500 mb-4">{t("app.choose_operation_hint")}</p>
+
+      <div className="space-y-3">
+        {OP_CATEGORIES.map((cat) => (
+          <div key={cat.title} className="card border-surface-800/50 overflow-hidden">
+            <div className={`h-0.5 -mx-5 -mt-5 mb-3 bg-gradient-to-r ${cat.color}`} />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-semibold text-surface-200">{cat.title}</h3>
+              <span className="text-[10px] text-surface-600">{cat.subtitle}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {cat.ids.map((id) => {
+                const op = OPERATIONS.find((o) => o.id === id);
+                if (!op) return null;
+                const Icon = OPERATION_ICONS[id];
+                return (
+                  <button
+                    key={id}
+                    onClick={() => onSelect(id)}
+                    className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-xs text-surface-500
+                               hover:text-surface-200 hover:bg-surface-800/60 active:bg-surface-800
+                               transition-all duration-150 text-left cursor-pointer active:scale-[0.98]"
+                  >
+                    {Icon && <Icon size={16} className="text-surface-600 shrink-0" />}
+                    <span className="truncate">{t(op.labelKey)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
+
+// ── Landing page (mobile optimized) ──
 
 function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => void }) {
   const { t } = useTranslation();
   const { loading, loadPhase, loadPercent, ready } = useFFmpeg();
-  const categories = useOperationCategories();
 
   return (
-    <div className="h-full flex flex-col bg-surface-950 selection:bg-brand-500/30 overflow-y-auto">
-      {/* Ambient top gloss */}
-      <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-brand-500/[0.03] to-transparent pointer-events-none" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-500/10 to-transparent" />
-
-      {/* Header */}
-      <header className="relative flex items-center justify-between px-6 pt-8 pb-2 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-            <IconFilm size={22} className="text-brand-500" />
+    <div className="h-full flex flex-col bg-surface-950 overflow-y-auto">
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-4 pt-5 pb-2 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+            <IconFilm size={20} className="text-brand-500" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
-            <p className="text-xs text-surface-500 font-medium tracking-wider uppercase">
-              {t("app.subtitle")}
-            </p>
+            <h1 className="text-lg font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
+            <p className="text-[10px] text-surface-500 font-medium tracking-wider uppercase">{t("app.subtitle")}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <ThemeSwitcher />
           <LanguageSwitcher />
         </div>
-      </header>
+      </div>
 
-      {/* Main area */}
-      <div className="flex-1 flex flex-col items-center px-6 pb-8">
-        {/* Tagline */}
-        <p className="relative text-sm text-surface-500 mb-6 text-center max-w-md">
-          Drop a video, do almost anything.
-          <br />
-          <span className="text-surface-600 text-xs">No uploads. No waiting. All in your machine.</span>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col px-4 pb-6">
+        <p className="text-xs text-surface-500 mb-5 text-center max-w-xs mx-auto leading-relaxed">
+          {t("app.tagline")}
         </p>
 
-        {/* Drop Zone — centered & prominent */}
-        <div className="w-full max-w-lg animate-fade-in">
+        {/* Drop zone */}
+        <div className="animate-fade-in">
           <DropZone onFileSelected={onFileSelected} />
 
-          {/* FFmpeg status */}
-          <div className="mt-4 flex justify-center">
+          {/* ffmpeg status */}
+          <div className="mt-3 flex justify-center">
             {loading && (
-              <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-surface-850 border border-surface-800">
-                <IconLoading size={14} className="text-brand-500 animate-spin-slow" />
-                <span className="text-sm text-surface-500">
-                  <span className="text-brand-400">{loadPhase}</span>
-                  {" "}{Math.round(loadPercent)}%
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-850 border border-surface-800">
+                <IconLoading size={12} className="text-brand-500 animate-spin-slow" />
+                <span className="text-xs text-surface-500">
+                  <span className="text-brand-400">{loadPhase}</span> {Math.round(loadPercent)}%
                 </span>
               </div>
             )}
             {ready && (
-              <div className="text-xs text-surface-600 flex items-center gap-2">
+              <div className="text-[11px] text-surface-600 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-status-green-dot opacity-70" />
                 ffmpeg ready
               </div>
@@ -233,38 +268,27 @@ function LandingPage({ onFileSelected }: { onFileSelected: (f: VideoFile) => voi
           </div>
         </div>
 
-        {/* Capability showcase cards */}
-        <div className="w-full max-w-4xl mt-10 animate-slide-up">
-          <div className="text-center mb-6">
-            <p className="text-xs text-surface-600 font-medium tracking-widest uppercase">What you can do</p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {categories.map((cat) => (
-              <div
-                key={cat.title}
-                className="group bg-surface-850/60 border border-surface-800/50 rounded-xl p-4
-                           hover:bg-surface-850 hover:border-surface-700/60 transition-all duration-200"
-              >
-                <p className="text-xs font-semibold text-surface-300 mb-1">{cat.title}</p>
-                <p className="text-[10px] text-surface-600 mb-3 leading-relaxed">{cat.subtitle}</p>
-                <ul className="space-y-1">
-                  {cat.ops.slice(0, 4).map((op) => (
-                    <li key={op.id} className="text-[11px] text-surface-500 group-hover:text-surface-400 transition-colors flex items-center gap-1.5">
-                      <span className="w-1 h-1 rounded-full bg-surface-700 group-hover:bg-brand-500/50 transition-colors" />
-                      {op.label}
-                    </li>
-                  ))}
-                </ul>
+        {/* Quick actions */}
+        <div className="mt-6">
+          <p className="text-[10px] text-surface-600 font-medium tracking-widest uppercase text-center mb-3">{t("app.quick_actions")}</p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {OP_CATEGORIES.slice(0, 4).map((cat) => (
+              <div key={cat.title} className="card-hover !p-3">
+                <div className={`h-0.5 -mx-3 -mt-3 mb-2 bg-gradient-to-r ${cat.color}`} />
+                <p className="text-xs font-semibold text-surface-300 mb-0.5">{cat.title}</p>
+                <p className="text-[10px] text-surface-600">{cat.ids.length} operations</p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Privacy notice */}
-        <div className="mt-8 text-center">
+        {/* Privacy */}
+        <div className="mt-6 text-center pb-2">
           <p className="text-[10px] text-surface-700 flex items-center justify-center gap-1.5">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-surface-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            All processing happens locally · No data ever leaves your device
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-surface-600">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            {t("app.privacy")}
           </p>
         </div>
       </div>

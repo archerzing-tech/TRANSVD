@@ -275,6 +275,15 @@ const zh: Record<string, string> = {
   "theme.switch_dark": "切换到深色模式",
   "theme.switch_light": "切换到浅色模式",
 
+  // Navigation (mobile)
+  "nav.home": "首页",
+  "nav.more": "更多",
+  "app.choose_operation": "选择操作",
+  "app.choose_operation_hint": "选择你想要对视频进行的操作",
+  "app.tagline": "拖入视频，几乎无所不能。不上传，全本地。",
+  "app.quick_actions": "快速开始",
+  "app.privacy": "所有处理均在本地完成 · 数据不会离开你的设备",
+
   // Language
   "lang.zh": "中文",
   "lang.en": "English",
