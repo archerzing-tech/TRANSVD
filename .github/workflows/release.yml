@@ -227,8 +227,8 @@ jobs:
           # installs ndk-version, but the runner may have a different default NDK)
           echo "NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125" >> "$GITHUB_ENV"
 
-      - name: Build Android APK
-        run: bun tauri android build
+      - name: Build Android APK (skip AAB bundle)
+        run: bun tauri android build --apk
 
       - name: Upload APK as workflow artifact
         uses: actions/upload-artifact@v4
