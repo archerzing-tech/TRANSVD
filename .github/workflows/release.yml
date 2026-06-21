@@ -196,18 +196,23 @@ jobs:
       - name: Type check
         run: bun run typecheck
 
-      - name: Create placeholder FFmpeg binary (Android uses ffmpeg.wasm)
+      - name: Create placeholder FFmpeg binaries (Android uses ffmpeg.wasm)
         run: |
+          set -e
           mkdir -p src-tauri/binaries
-          # Tauri requires a sidecar binary to exist for externalBin.
-          # On Android we use ffmpeg.wasm instead, so this placeholder
-          # will never actually be executed. Only arm64-v8a is built.
-          cat > src-tauri/binaries/ffmpeg-aarch64-linux-android << 'EOF'
-          #!/bin/sh
-          echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"
-          exit 0
-          EOF
-          chmod +x src-tauri/binaries/ffmpeg-aarch64-linux-android
+          # Tauri requires a sidecar binary to exist for each externalBin entry
+          # for EVERY installed Rust target. On Android we use ffmpeg.wasm, so
+          # these placeholders will never actually be executed.
+          for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android; do
+            cat > "src-tauri/binaries/ffmpeg-${target}" << 'EOF'
+#!/bin/sh
+echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"
+exit 0
+EOF
+            chmod +x "src-tauri/binaries/ffmpeg-${target}"
+          done
+          echo "Created placeholders for:"
+          ls -la src-tauri/binaries/ffmpeg-*
 
       - name: Setup Android project for CI
         run: |
