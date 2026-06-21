@@ -42,8 +42,9 @@ signing_configs_block = """    signingConfigs {
 """.rstrip("\n")
 
 # Insert signingConfigs block between defaultConfig closing brace and buildTypes.
+# Note: there is NO blank line between the closing brace and buildTypes in the generated file.
 content = content.replace(
-    "    }\n\n    buildTypes {",
+    "    }\n    buildTypes {",
     "    }\n" + signing_configs_block + "\n\n    buildTypes {"
 )
 

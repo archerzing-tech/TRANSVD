@@ -257,11 +257,14 @@ jobs:
             echo "No APK file found to upload to release"
             exit 1
           fi
-          echo "Uploading $APK_FILE to release ${{ github.ref_name }}..."
+          # Rename to a clean name (no 'universal' in filename)
+          APK_BASENAME="TRANSVD-${{ github.ref_name }}-arm64-v8a.apk"
+          cp "$APK_FILE" "/tmp/$APK_BASENAME"
+          echo "Uploading /tmp/$APK_BASENAME to release ${{ github.ref_name }}..."
           # Retry in case tauri-action hasn't created the release yet
           UPLOADED=false
           for i in 1 2 3 4 5; do
-            if gh release upload "${{ github.ref_name }}" "$APK_FILE" --clobber; then
+            if gh release upload "${{ github.ref_name }}" "/tmp/$APK_BASENAME" --clobber; then
               echo "APK uploaded successfully to release ${{ github.ref_name }}"
               UPLOADED=true
               break
