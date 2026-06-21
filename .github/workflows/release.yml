@@ -26,9 +26,9 @@ concurrency:
 
 jobs:
   build:
-    # Desktop builds: only on branch pushes (master/main) or manual dispatch.
-    # Tag pushes (v*) only build Android APK.
-    if: ${{ (github.event_name == 'push' && github.ref_type == 'branch') || (github.event_name == 'workflow_dispatch' && inputs.run-desktop) }}
+    # Desktop builds: run on all pushes (branch + tag) or manual dispatch.
+    # workflow_dispatch inputs allow selecting specific platforms.
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run-desktop }}
     strategy:
       fail-fast: false
       matrix:
@@ -164,11 +164,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: |
-            aarch64-linux-android
-            armv7-linux-androideabi
-            i686-linux-android
-            x86_64-linux-android
+          targets: aarch64-linux-android
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
@@ -189,7 +185,7 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'tools platform-tools platforms;android-36 build-tools;36.0.0'
+          packages: 'platforms;android-36 build-tools;36.0.0'
 
       - name: Install Android NDK
         run: |
@@ -208,10 +204,9 @@ jobs:
           # Tauri requires a sidecar binary to exist for each externalBin entry
           # for EVERY installed Rust target. On Android we use ffmpeg.wasm, so
           # these placeholders will never actually be executed.
-          for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android; do
-            printf '%s\n' '#!/bin/sh' 'echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"' 'exit 0' > "src-tauri/binaries/ffmpeg-${target}"
-            chmod +x "src-tauri/binaries/ffmpeg-${target}"
-          done
+          TARGET="aarch64-linux-android"
+          printf '%s\n' '#!/bin/sh' 'echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"' 'exit 0' > "src-tauri/binaries/ffmpeg-${TARGET}"
+          chmod +x "src-tauri/binaries/ffmpeg-${TARGET}"
           echo "Created placeholders for:"
           ls -la src-tauri/binaries/ffmpeg-*
 
