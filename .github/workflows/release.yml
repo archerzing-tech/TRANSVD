@@ -230,6 +230,9 @@ jobs:
           # installs ndk-version, but the runner may have a different default NDK)
           echo "NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125" >> "$GITHUB_ENV"
 
+      - name: Setup Android signing
+        run: bash scripts/patch-android-signing.sh
+
       - name: Setup Gradle cache
         uses: gradle/actions/setup-gradle@v6
 
