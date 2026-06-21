@@ -8,13 +8,17 @@ set -e
 KEYSTORE="src-tauri/transvd.keystore"
 GRADLE_FILE="src-tauri/gen/android/app/build.gradle.kts"
 
-# Generate keystore
-keytool -genkey -v -keystore "$KEYSTORE" \
-  -storepass transvd2024 -alias transvd -keypass transvd2024 \
-  -keyalg RSA -keysize 2048 -validity 10000 \
-  -dname "CN=TRANSVD, OU=Development, O=TRANSVD, L=Unknown, ST=Unknown, C=CN"
-
-echo "Keystore generated at $KEYSTORE"
+# Generate keystore only if it doesn't exist yet
+# (tauri android init may already create one)
+if [ ! -f "$KEYSTORE" ]; then
+  keytool -genkey -v -keystore "$KEYSTORE" \
+    -storepass transvd2024 -alias transvd -keypass transvd2024 \
+    -keyalg RSA -keysize 2048 -validity 10000 \
+    -dname "CN=TRANSVD, OU=Development, O=TRANSVD, L=Unknown, ST=Unknown, C=CN"
+  echo "Keystore generated at $KEYSTORE"
+else
+  echo "Keystore already exists at $KEYSTORE, skipping generation"
+fi
 
 # Patch build.gradle.kts with signing config
 # (tauri android init regenerates this file, so we must re-add signing)
@@ -38,10 +42,6 @@ signing_configs_block = """    signingConfigs {
 """.rstrip("\n")
 
 # Insert signingConfigs block between defaultConfig closing brace and buildTypes.
-# The pattern is:
-#     }  (closes defaultConfig, 4-space indent)
-#     (blank line)
-#     buildTypes {
 content = content.replace(
     "    }\n\n    buildTypes {",
     "    }\n" + signing_configs_block + "\n\n    buildTypes {"
