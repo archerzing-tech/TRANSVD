@@ -48,6 +48,10 @@
       "wix": null,
       "nsis": {
         "installMode": "currentUser"
+      },
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
       }
     },
     "android": {

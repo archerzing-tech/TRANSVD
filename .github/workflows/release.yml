@@ -38,7 +38,7 @@ jobs:
             rust-target: x86_64-pc-windows-msvc
             args: ''
 
-          - os: macos-15-intel
+          - os: macos-13
             target: x86_64-apple-darwin
             rust-target: x86_64-apple-darwin
             args: ''
@@ -84,8 +84,23 @@ jobs:
               ;;
           esac
           echo "Downloading static ffmpeg (${{ matrix.target }})…"
-          curl -L -o ffmpeg.zip \
-            "https://ffmpeg.martin-riedl.de/redirect/latest/macos/${ARCH}/release/ffmpeg.zip"
+          # Retry up to 3 times with 10s delay (ffmpeg.martin-riedl.de can be flaky)
+          RETRIES=3
+          for i in $(seq 1 $RETRIES); do
+            echo "Attempt $i of $RETRIES..."
+            if curl -L -o ffmpeg.zip --fail \
+              "https://ffmpeg.martin-riedl.de/redirect/latest/macos/${ARCH}/release/ffmpeg.zip"; then
+              echo "Download succeeded on attempt $i"
+              break
+            fi
+            if [ "$i" -lt "$RETRIES" ]; then
+              echo "Retrying in 10s..."
+              sleep 10
+            else
+              echo "ERROR: Failed to download ffmpeg after $RETRIES attempts"
+              exit 1
+            fi
+          done
           unzip -o ffmpeg.zip
           mv ffmpeg "src-tauri/binaries/${BINARY}"
           chmod +x "src-tauri/binaries/${BINARY}"
@@ -148,8 +163,10 @@ jobs:
           releaseName: "视频转换工具箱 · TRANSVD v__VERSION__"
           releaseBody: |
             See the assets to download this version.
-          releaseDraft: false
+          releaseDraft: true
           prerelease: false
+          retryAttempts: 3
+          uploadWorkflowArtifacts: true
           args: ${{ matrix.args }}
 
   build-android:
@@ -247,6 +264,24 @@ jobs:
           name: transvd-android-apk
           path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
 
+      - name: Wait for GitHub Release to be created by Desktop build
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Waiting for release ${{ github.ref_name }} to be created by Desktop build..."
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if gh release view "${{ github.ref_name }}" > /dev/null 2>&1; then
+              echo "Release ${{ github.ref_name }} found."
+              exit 0
+            fi
+            echo "Attempt $i: release not created yet, waiting 30s..."
+            sleep 30
+          done
+          echo "ERROR: Release ${{ github.ref_name }} not found after 10 attempts (5 min)" >&2
+          exit 1
+
       - name: Upload APK to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
@@ -263,18 +298,5 @@ jobs:
           APK_BASENAME="TRANSVD-${{ github.ref_name }}-arm64-v8a.apk"
           cp "$APK_FILE" "/tmp/$APK_BASENAME"
           echo "Uploading /tmp/$APK_BASENAME to release ${{ github.ref_name }}..."
-          # Retry in case tauri-action hasn't created the release yet
-          UPLOADED=false
-          for i in 1 2 3 4 5; do
-            if gh release upload "${{ github.ref_name }}" "/tmp/$APK_BASENAME" --clobber; then
-              echo "APK uploaded successfully to release ${{ github.ref_name }}"
-              UPLOADED=true
-              break
-            fi
-            echo "Attempt $i: release not ready yet, waiting 30s..."
-            sleep 30
-          done
-          if [ "$UPLOADED" = false ]; then
-            echo "ERROR: Failed to upload APK to release ${{ github.ref_name }} after 5 attempts" >&2
-            exit 1
-          fi
+          gh release upload "${{ github.ref_name }}" "/tmp/$APK_BASENAME" --clobber
+          echo "APK uploaded successfully to release ${{ github.ref_name }}"
