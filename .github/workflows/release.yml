@@ -204,11 +204,7 @@ jobs:
           # for EVERY installed Rust target. On Android we use ffmpeg.wasm, so
           # these placeholders will never actually be executed.
           for target in aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android; do
-            cat > "src-tauri/binaries/ffmpeg-${target}" << 'EOF'
-#!/bin/sh
-echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"
-exit 0
-EOF
+            printf '%s\n' '#!/bin/sh' 'echo "FFmpeg sidecar not available on Android; using ffmpeg.wasm instead"' 'exit 0' > "src-tauri/binaries/ffmpeg-${target}"
             chmod +x "src-tauri/binaries/ffmpeg-${target}"
           done
           echo "Created placeholders for:"
