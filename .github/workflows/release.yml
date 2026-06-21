@@ -209,6 +209,23 @@ jobs:
           EOF
           chmod +x src-tauri/binaries/ffmpeg-aarch64-linux-android
 
+      - name: Setup Android project for CI
+        run: |
+          set -e
+          # Delete the committed tauri.settings.gradle which has machine-specific
+          # Cargo registry paths (e.g. /Users/ericever/...) that don't exist in CI
+          rm -f src-tauri/gen/android/tauri.settings.gradle src-tauri/gen/android/local.properties
+
+          # Regenerate Android project non-interactively with CI-correct paths
+          bun tauri android init --ci --skip-targets-install
+
+          # Ensure Gradle can find the Android SDK
+          echo "sdk.dir=$ANDROID_HOME" > src-tauri/gen/android/local.properties
+
+          # Explicitly point NDK_HOME to the version we installed (setup-android
+          # installs ndk-version, but the runner may have a different default NDK)
+          echo "NDK_HOME=$ANDROID_HOME/ndk/26.1.10909125" >> "$GITHUB_ENV"
+
       - name: Build Android APK
         run: bun tauri android build
 
