@@ -278,6 +278,8 @@ const zh: Record<string, string> = {
   // Navigation (mobile)
   "nav.home": "首页",
   "nav.more": "更多",
+  "nav.back": "返回",
+  "app.theme": "主题",
   "app.choose_operation": "选择操作",
   "app.choose_operation_hint": "选择你想要对视频进行的操作",
   "app.tagline": "拖入视频，几乎无所不能。不上传，全本地。",

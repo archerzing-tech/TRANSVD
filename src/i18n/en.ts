@@ -278,6 +278,8 @@ const en: Record<string, string> = {
   // Navigation (mobile)
   "nav.home": "Home",
   "nav.more": "More",
+  "nav.back": "Back",
+  "app.theme": "Theme",
   "app.choose_operation": "Choose an operation",
   "app.choose_operation_hint": "Select what you want to do with your video",
   "app.tagline": "Drop a video, do almost anything. No uploads. All local.",

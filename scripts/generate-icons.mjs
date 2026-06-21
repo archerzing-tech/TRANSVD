@@ -31,39 +31,28 @@ const TAURI_SIZES = [
 ];
 
 // ── SVG templates for the icon ──
-// A clean film/slate icon with "T" branding
+// A minimalist green leaf silhouette
 
 const SVG_FOREGROUND = `<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#D4A860"/>
-      <stop offset="100%" stop-color="#C49A54"/>
-    </linearGradient>
-  </defs>
-  <!-- Film strip shape -->
-  <rect x="14" y="22" width="80" height="64" rx="8" fill="url(#g)"/>
-  <!-- Sprocket holes - left -->
-  <rect x="18" y="26" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="18" y="35" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="18" y="44" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="18" y="53" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="18" y="62" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="18" y="71" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <!-- Sprocket holes - right -->
-  <rect x="84" y="26" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="84" y="35" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="84" y="44" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="84" y="53" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="84" y="62" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <rect x="84" y="71" width="6" height="5" rx="1" fill="#0C0B08" opacity="0.7"/>
-  <!-- Inner screen area -->
-  <rect x="30" y="30" width="48" height="48" rx="4" fill="#0C0B08" opacity="0.85"/>
-  <!-- Play triangle -->
-  <polygon points="48,40 48,68 68,54" fill="url(#g)"/>
+  <!-- Leaf body -->
+  <path d="M54,22 C54,22 34,38 30,54 C26,70 38,86 54,86 C70,86 82,70 78,54 C74,38 54,22 54,22Z"
+    stroke="#4ADE80" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <!-- Center vein -->
+  <path d="M54,22 L54,84" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Left side veins -->
+  <path d="M54,36 L38,44" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,50 L34,58" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,64 L40,72" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Right side veins -->
+  <path d="M54,36 L70,44" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,50 L74,58" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,64 L68,72" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Stem -->
+  <path d="M54,22 L54,14" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round"/>
 </svg>`;
 
 const SVG_BACKGROUND = `<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <rect width="108" height="108" fill="#1C1B18"/>
+  <rect width="108" height="108" fill="#1A3A2A"/>
 </svg>`;
 
 // ── Helper: generate a colored circle PNG using sharp ──
