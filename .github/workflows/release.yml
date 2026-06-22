@@ -35,13 +35,15 @@ jobs:
         include:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            rust-target: x86_64-pc-windows-msvc
+            rust-targets: x86_64-pc-windows-msvc
             args: ''
 
-          - os: macos-13
-            target: x86_64-apple-darwin
-            rust-target: x86_64-apple-darwin
-            args: ''
+          - os: macos-latest
+            target: universal-apple-darwin
+            rust-targets: |
+              aarch64-apple-darwin
+              x86_64-apple-darwin
+            args: --target universal-apple-darwin
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -53,7 +55,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.rust-target }}
+          targets: ${{ matrix.rust-targets }}
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
@@ -75,40 +77,52 @@ jobs:
         if: runner.os == 'macOS'
         shell: bash
         run: |
+          set -e
           mkdir -p src-tauri/binaries
-          # Map target triple → ffmpeg.martin-riedl.de arch name
-          case "${{ matrix.target }}" in
-            x86_64-apple-darwin)
-              ARCH=amd64
-              BINARY="ffmpeg-x86_64-apple-darwin"
-              ;;
-          esac
-          echo "Downloading static ffmpeg (${{ matrix.target }})…"
-          # Retry up to 3 times with 10s delay (ffmpeg.martin-riedl.de can be flaky)
-          RETRIES=3
-          for i in $(seq 1 $RETRIES); do
-            echo "Attempt $i of $RETRIES..."
-            if curl -L -o ffmpeg.zip --fail \
-              "https://ffmpeg.martin-riedl.de/redirect/latest/macos/${ARCH}/release/ffmpeg.zip"; then
-              echo "Download succeeded on attempt $i"
+
+          # ── Download Intel (x86_64) ffmpeg ──
+          echo "Downloading static ffmpeg (amd64 / Intel)…"
+          for i in 1 2 3; do
+            if curl -L -o ffmpeg-amd64.zip --fail \
+              "https://ffmpeg.martin-riedl.de/redirect/latest/macos/amd64/release/ffmpeg.zip"; then
+              echo "  Intel download succeeded on attempt $i"
               break
             fi
-            if [ "$i" -lt "$RETRIES" ]; then
-              echo "Retrying in 10s..."
-              sleep 10
-            else
-              echo "ERROR: Failed to download ffmpeg after $RETRIES attempts"
-              exit 1
-            fi
+            [ "$i" -lt 3 ] && sleep 10 || { echo "ERROR: Intel ffmpeg download failed"; exit 1; }
           done
-          unzip -o ffmpeg.zip
-          mv ffmpeg "src-tauri/binaries/${BINARY}"
+          unzip -o ffmpeg-amd64.zip -d ffmpeg-amd64-extract
+          mv ffmpeg-amd64-extract/ffmpeg ffmpeg-intel
+          rm -rf ffmpeg-amd64.zip ffmpeg-amd64-extract
+
+          # ── Download ARM (Apple Silicon) ffmpeg ──
+          echo "Downloading static ffmpeg (arm64 / Apple Silicon)…"
+          for i in 1 2 3; do
+            if curl -L -o ffmpeg-arm64.zip --fail \
+              "https://ffmpeg.martin-riedl.de/redirect/latest/macos/arm64/release/ffmpeg.zip"; then
+              echo "  ARM download succeeded on attempt $i"
+              break
+            fi
+            [ "$i" -lt 3 ] && sleep 10 || { echo "ERROR: ARM ffmpeg download failed"; exit 1; }
+          done
+          unzip -o ffmpeg-arm64.zip -d ffmpeg-arm64-extract
+          mv ffmpeg-arm64-extract/ffmpeg ffmpeg-arm
+          rm -rf ffmpeg-arm64.zip ffmpeg-arm64-extract
+
+          # ── Merge into universal binary with lipo ──
+          echo "Creating universal ffmpeg binary with lipo…"
+          lipo -create -output ffmpeg-universal ffmpeg-intel ffmpeg-arm
+
+          BINARY="ffmpeg-universal-apple-darwin"
+          mv ffmpeg-universal "src-tauri/binaries/${BINARY}"
           chmod +x "src-tauri/binaries/${BINARY}"
           # Remove quarantine attribute so macOS Gatekeeper allows execution
           xattr -d com.apple.quarantine "src-tauri/binaries/${BINARY}" 2>/dev/null || true
-          echo "Static ffmpeg binary ready:"
+
+          echo "✅ Universal ffmpeg binary ready:"
           file "src-tauri/binaries/${BINARY}"
-          otool -L "src-tauri/binaries/${BINARY}" | head -5
+          lipo -info "src-tauri/binaries/${BINARY}"
+          # Cleanup intermediate files
+          rm -f ffmpeg-intel ffmpeg-arm
 
       - name: Download static ffmpeg (Windows)
         if: runner.os == 'Windows'
