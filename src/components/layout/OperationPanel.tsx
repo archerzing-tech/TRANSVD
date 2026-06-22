@@ -139,22 +139,22 @@ interface WelcomePanelProps {
 const OP_CATEGORIES: { title: string; color: string; ids: OperationId[] }[] = [
   {
     title: "Convert & Compress",
-    color: "from-amber-600/20 to-amber-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     ids: ["gif", "convert", "compress"],
   },
   {
     title: "Trim & Transform",
-    color: "from-blue-600/20 to-blue-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     ids: ["trim", "crop", "rotate", "resize", "speed", "reverse"],
   },
   {
     title: "Audio & Effects",
-    color: "from-violet-600/20 to-violet-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     ids: ["audio-extract", "mute", "volume", "fade", "adjust"],
   },
   {
     title: "Advanced",
-    color: "from-emerald-600/20 to-emerald-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     ids: ["overlay", "concat", "pip", "subtitles", "side-by-side", "mix-audio", "loop", "strip-meta", "mediainfo", "thumbnail", "raw"],
   },
 ];

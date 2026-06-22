@@ -192,7 +192,7 @@ function MobileOperationView({
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4">
         <OperationPanel
           operation={operation}
           video={video}
@@ -218,43 +218,43 @@ const OP_CATEGORIES: {
 }[] = [
   {
     title: "Convert & Compress",
-    color: "from-amber-400/70 to-amber-500/40",
+    color: "from-brand-500/20 to-brand-600/10",
     subtitle: "GIF, format, compress",
     ids: ["gif", "convert", "compress"],
-    cardBg: "bg-amber-950/70",
-    hoverRing: "hover:ring-2 hover:ring-amber-500/25 hover:shadow-lg hover:shadow-amber-500/8",
-    iconHover: "group-hover:bg-amber-500/15 group-hover:border-amber-500/30",
-    iconHoverColor: "group-hover:text-amber-400",
+    cardBg: "bg-surface-850/80",
+    hoverRing: "hover:ring-1 hover:ring-brand-500/20 hover:shadow-lg hover:shadow-brand-500/5",
+    iconHover: "group-hover:bg-brand-500/10 group-hover:border-brand-500/20",
+    iconHoverColor: "group-hover:text-brand-400",
   },
   {
     title: "Trim & Transform",
-    color: "from-sky-400/70 to-sky-500/40",
+    color: "from-brand-500/20 to-brand-600/10",
     subtitle: "Cut, crop, rotate, speed",
     ids: ["trim", "crop", "rotate", "resize", "speed", "reverse"],
-    cardBg: "bg-sky-950/70",
-    hoverRing: "hover:ring-2 hover:ring-sky-500/25 hover:shadow-lg hover:shadow-sky-500/8",
-    iconHover: "group-hover:bg-sky-500/15 group-hover:border-sky-500/30",
-    iconHoverColor: "group-hover:text-sky-400",
+    cardBg: "bg-surface-850/80",
+    hoverRing: "hover:ring-1 hover:ring-brand-500/20 hover:shadow-lg hover:shadow-brand-500/5",
+    iconHover: "group-hover:bg-brand-500/10 group-hover:border-brand-500/20",
+    iconHoverColor: "group-hover:text-brand-400",
   },
   {
     title: "Audio & Effects",
-    color: "from-fuchsia-400/70 to-fuchsia-500/40",
+    color: "from-brand-500/20 to-brand-600/10",
     subtitle: "Volume, fade, adjust",
     ids: ["audio-extract", "mute", "volume", "fade", "adjust"],
-    cardBg: "bg-fuchsia-950/70",
-    hoverRing: "hover:ring-2 hover:ring-fuchsia-500/25 hover:shadow-lg hover:shadow-fuchsia-500/8",
-    iconHover: "group-hover:bg-fuchsia-500/15 group-hover:border-fuchsia-500/30",
-    iconHoverColor: "group-hover:text-fuchsia-400",
+    cardBg: "bg-surface-850/80",
+    hoverRing: "hover:ring-1 hover:ring-brand-500/20 hover:shadow-lg hover:shadow-brand-500/5",
+    iconHover: "group-hover:bg-brand-500/10 group-hover:border-brand-500/20",
+    iconHoverColor: "group-hover:text-brand-400",
   },
   {
     title: "Advanced",
-    color: "from-emerald-400/70 to-emerald-500/40",
+    color: "from-brand-500/20 to-brand-600/10",
     subtitle: "Overlay, concat, PiP...",
     ids: ["overlay", "concat", "pip", "subtitles", "side-by-side", "mix-audio", "loop", "strip-meta", "mediainfo", "thumbnail", "raw"],
-    cardBg: "bg-emerald-950/70",
-    hoverRing: "hover:ring-2 hover:ring-emerald-500/25 hover:shadow-lg hover:shadow-emerald-500/8",
-    iconHover: "group-hover:bg-emerald-500/15 group-hover:border-emerald-500/30",
-    iconHoverColor: "group-hover:text-emerald-400",
+    cardBg: "bg-surface-850/80",
+    hoverRing: "hover:ring-1 hover:ring-brand-500/20 hover:shadow-lg hover:shadow-brand-500/5",
+    iconHover: "group-hover:bg-brand-500/10 group-hover:border-brand-500/20",
+    iconHoverColor: "group-hover:text-brand-400",
   },
 ];
 
@@ -270,14 +270,14 @@ function MobileOperationCards({
   const { t } = useTranslation();
 
   return (
-    <main className="flex-1 overflow-y-auto px-4 pt-3 pb-6">
+    <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 pt-3 pb-6">
       {/* File info bar */}
       <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-surface-850 border border-surface-800/50">
         <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
           <IconFilm size={18} className="text-brand-500" />
         </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-surface-200 truncate">{video.name}</p>
+        <div className="flex-1 min-w-0 text-center">
+          <p className="text-sm font-medium text-surface-200 truncate max-w-full">{video.name}</p>
           <p className="text-xs text-surface-500">{(video.size / 1024 / 1024).toFixed(1)} MB</p>
         </div>
         <button onClick={onOpenFile} className="btn-secondary btn-sm shrink-0 text-xs cursor-pointer">
@@ -285,17 +285,16 @@ function MobileOperationCards({
         </button>
       </div>
 
-      <h2 className="text-base font-bold text-surface-50 mb-1">{t("app.choose_operation")}</h2>
+      <h2 className="text-base font-bold text-surface-50 text-center mb-1">{t("app.choose_operation")}</h2>
 
       <div className="space-y-4 mt-4">
         {OP_CATEGORIES.map((cat) => (
-          <div key={cat.title}>
-            {/* Category header */}
-            <div className="flex items-center gap-2 mb-2.5">
-              <div className={`h-3 w-0.5 rounded-full bg-gradient-to-b ${cat.color}`} />
-              <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-wider">{cat.title}</h3>
-              <span className="text-[10px] text-surface-600 ml-auto">{cat.subtitle}</span>
-            </div>
+          <div key={cat.title}>            {/* Category header */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-3 w-0.5 rounded-full bg-brand-500/40" />
+                <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-wider">{cat.title}</h3>
+                <span className="text-[10px] text-surface-600 ml-auto">{cat.subtitle}</span>
+              </div>
             {/* Cards grid */}
             <div className="grid grid-cols-2 gap-2.5">
               {cat.ids.map((id) => {
@@ -314,7 +313,7 @@ function MobileOperationCards({
                     <div className={`w-10 h-10 rounded-xl bg-surface-800/80 border border-surface-700/50 flex items-center justify-center transition-all duration-150 ${cat.iconHover}`}>
                       {Icon && <Icon size={20} className={`text-surface-500 transition-colors duration-150 ${cat.iconHoverColor}`} />}
                     </div>
-                    <span className={`text-xs font-medium text-surface-400 text-center leading-tight transition-colors duration-150 ${cat.iconHoverColor}`}>
+                    <span className={`text-xs font-medium text-surface-400 text-center leading-tight transition-colors duration-150 ${cat.iconHoverColor} line-clamp-2 break-words`}>
                       {t(op.labelKey)}
                     </span>
                   </button>
@@ -333,25 +332,25 @@ function MobileOperationCards({
 const OP_CATEGORIES_DESKTOP: { title: string; color: string; subtitle: string; ids: OperationId[] }[] = [
   {
     title: "Convert & Compress",
-    color: "from-amber-600/20 to-amber-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     subtitle: "GIF, format, compress",
     ids: ["gif", "convert", "compress"],
   },
   {
     title: "Trim & Transform",
-    color: "from-blue-600/20 to-blue-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     subtitle: "Cut, crop, rotate, speed",
     ids: ["trim", "crop", "rotate", "resize", "speed", "reverse"],
   },
   {
     title: "Audio & Effects",
-    color: "from-violet-600/20 to-violet-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     subtitle: "Volume, fade, adjust",
     ids: ["audio-extract", "mute", "volume", "fade", "adjust"],
   },
   {
     title: "Advanced",
-    color: "from-emerald-600/20 to-emerald-700/10",
+    color: "from-brand-600/15 to-brand-700/8",
     subtitle: "Overlay, concat, PiP...",
     ids: ["overlay", "concat", "pip", "subtitles", "side-by-side", "mix-audio", "loop", "strip-meta", "mediainfo", "thumbnail", "raw"],
   },
@@ -376,8 +375,8 @@ function OperationPicker({ video, onSelect, onOpenFile }: { video: VideoFile; on
         </button>
       </div>
 
-      <h2 className="text-base font-bold text-surface-50 mb-1">{t("app.choose_operation")}</h2>
-      <p className="text-xs text-surface-500 mb-4">{t("app.choose_operation_hint")}</p>
+      <h2 className="text-base font-bold text-surface-50 text-center mb-1">{t("app.choose_operation")}</h2>
+      <p className="text-xs text-surface-500 text-center mb-4">{t("app.choose_operation_hint")}</p>
 
       <div className="space-y-3">
         {OP_CATEGORIES_DESKTOP.map((cat) => (
