@@ -34,6 +34,18 @@ export default function Header({ onHome, video }: HeaderProps) {
           <span className="text-xs text-surface-500 font-mono truncate max-w-[200px]">{video.name}</span>
           <span className="text-[10px] text-surface-600">·</span>
           <span className="text-[11px] text-surface-500">{(video.size / 1024 / 1024).toFixed(1)}MB</span>
+          {onHome && (
+            <button
+              onClick={onHome}
+              className="ml-1 p-0.5 rounded-md text-surface-600 hover:text-surface-300 hover:bg-surface-800/60 transition-all duration-150 cursor-pointer"
+              title="Close file"
+            >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+          )}
         </div>
       )}
 
