@@ -116,6 +116,11 @@ jobs:
           # needs its own sidecar binary: ffmpeg-aarch64-apple-darwin and
           # ffmpeg-x86_64-apple-darwin. Both get the same lipo'd universal
           # binary — Tauri will embed only the relevant slice at link time.
+          # Tauri universal bundle needs ffmpeg-universal-apple-darwin (matches --target)
+          cp ffmpeg-universal "src-tauri/binaries/ffmpeg-universal-apple-darwin"
+          chmod +x "src-tauri/binaries/ffmpeg-universal-apple-darwin"
+          xattr -d com.apple.quarantine "src-tauri/binaries/ffmpeg-universal-apple-darwin" 2>/dev/null || true
+
           for target_triple in aarch64-apple-darwin x86_64-apple-darwin; do
             cp ffmpeg-universal "src-tauri/binaries/ffmpeg-${target_triple}"
             chmod +x "src-tauri/binaries/ffmpeg-${target_triple}"
