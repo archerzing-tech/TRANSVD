@@ -112,17 +112,22 @@ jobs:
           echo "Creating universal ffmpeg binary with lipo…"
           lipo -create -output ffmpeg-universal ffmpeg-intel ffmpeg-arm
 
-          BINARY="ffmpeg-universal-apple-darwin"
-          mv ffmpeg-universal "src-tauri/binaries/${BINARY}"
-          chmod +x "src-tauri/binaries/${BINARY}"
-          # Remove quarantine attribute so macOS Gatekeeper allows execution
-          xattr -d com.apple.quarantine "src-tauri/binaries/${BINARY}" 2>/dev/null || true
+          # Tauri universal build compiles each arch separately, so each
+          # needs its own sidecar binary: ffmpeg-aarch64-apple-darwin and
+          # ffmpeg-x86_64-apple-darwin. Both get the same lipo'd universal
+          # binary — Tauri will embed only the relevant slice at link time.
+          for target_triple in aarch64-apple-darwin x86_64-apple-darwin; do
+            cp ffmpeg-universal "src-tauri/binaries/ffmpeg-${target_triple}"
+            chmod +x "src-tauri/binaries/ffmpeg-${target_triple}"
+            # Remove quarantine attribute so macOS Gatekeeper allows execution
+            xattr -d com.apple.quarantine "src-tauri/binaries/ffmpeg-${target_triple}" 2>/dev/null || true
+          done
 
-          echo "✅ Universal ffmpeg binary ready:"
-          file "src-tauri/binaries/${BINARY}"
-          lipo -info "src-tauri/binaries/${BINARY}"
+          echo "✅ Universal ffmpeg binaries ready:"
+          file src-tauri/binaries/ffmpeg-*-darwin
+          lipo -info src-tauri/binaries/ffmpeg-*-darwin
           # Cleanup intermediate files
-          rm -f ffmpeg-intel ffmpeg-arm
+          rm -f ffmpeg-intel ffmpeg-arm ffmpeg-universal
 
       - name: Download static ffmpeg (Windows)
         if: runner.os == 'Windows'
