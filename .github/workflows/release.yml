@@ -166,7 +166,6 @@ jobs:
           releaseDraft: false
           prerelease: false
           retryAttempts: 3
-          uploadWorkflowArtifacts: true
           args: ${{ matrix.args }}
 
   build-android:
