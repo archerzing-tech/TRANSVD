@@ -1,6 +1,6 @@
 import { type OperationId, type VideoFile, OPERATIONS } from "../../types";
 import { useTranslation } from "../../context/LanguageContext";
-import { OPERATION_ICONS, IconOpenFile, IconFilm } from "../../lib/icons";
+import { OPERATION_ICONS, IconOpenFile, IconLeaf, IconFilm } from "../../lib/icons";
 import GifPanel from "../operations/GifPanel";
 import ConvertPanel from "../operations/ConvertPanel";
 import CompressPanel from "../operations/CompressPanel";
@@ -167,8 +167,8 @@ function WelcomePanel({ video: _video, onSelect }: WelcomePanelProps) {
       {/* Welcome message */}
       <div className="card">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
-            <IconFilm size={24} className="text-brand-500" />
+          <div className="w-12 h-12 flex items-center justify-center shrink-0">
+            <IconLeaf size={32} className="text-brand-500" />
           </div>
           <div>
             <h3 className="text-base font-semibold text-surface-50">File loaded! What would you like to do?</h3>

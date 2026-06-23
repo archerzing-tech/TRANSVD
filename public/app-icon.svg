@@ -9,6 +9,11 @@
       <stop offset="50%" stop-color="#C89B5A" stop-opacity=".1"/>
       <stop offset="100%" stop-color="#C89B5A" stop-opacity="0"/>
     </linearGradient>
+    <linearGradient id="leafGrad" x1="256" y1="64" x2="256" y2="448">
+      <stop offset="0%" stop-color="#D4A860"/>
+      <stop offset="50%" stop-color="#C49A54"/>
+      <stop offset="100%" stop-color="#A67E44"/>
+    </linearGradient>
   </defs>
   <!-- Rounded rect background -->
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
@@ -16,19 +21,18 @@
   <rect width="512" height="512" rx="96" fill="url(#shine)"/>
   <!-- Inner glow border -->
   <rect x="8" y="8" width="496" height="496" rx="88" stroke="#C89B5A" stroke-opacity=".12" stroke-width="2" fill="none"/>
-  <!-- Play triangle "T" shape: left part of play -->
-  <path d="M164 388V124l258 132-258 132Z" fill="#C89B5A"/>
-  <!-- Gradient highlight on play -->
-  <path d="M164 388V124l258 132-258 132Z" fill="url(#shine)" fill-opacity=".5"/>
-  <!-- Crossbar of T (film reel top) -->
-  <rect x="140" y="148" width="280" height="24" rx="4" fill="#C89B5A" fill-opacity=".85"/>
-  <!-- Subtle sparkle dots -->
-  <circle cx="380" cy="180" r="3" fill="#C89B5A" fill-opacity=".25"/>
-  <circle cx="400" cy="200" r="2" fill="#C89B5A" fill-opacity=".15"/>
-  <!-- Film sprocket holes (left side) -->
-  <rect x="148" y="200" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
-  <rect x="148" y="226" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
-  <rect x="148" y="252" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
-  <rect x="148" y="278" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
-  <rect x="148" y="304" width="8" height="6" rx="1.5" fill="#C89B5A" fill-opacity=".15"/>
+  <!-- Leaf shape -->
+  <path d="M256 64C256 64 106 148 106 276s62 172 150 172 150-68 150-172S256 64 256 64z"
+        stroke="url(#leafGrad)" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Center vein -->
+  <path d="M256 64v384" stroke="url(#leafGrad)" stroke-width="10" stroke-linecap="round"/>
+  <!-- Side veins - left -->
+  <path d="M180 198l76 32" stroke="#C49A54" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+  <path d="M148 278l108 24" stroke="#C49A54" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+  <!-- Side veins - right -->
+  <path d="M332 198l-76 32" stroke="#C49A54" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+  <path d="M364 278l-108 24" stroke="#C49A54" stroke-width="7" stroke-linecap="round" opacity=".7"/>
+  <!-- Subtle sparkle dot -->
+  <circle cx="380" cy="140" r="3" fill="#D4A860" fill-opacity=".25"/>
+  <circle cx="400" cy="160" r="2" fill="#D4A860" fill-opacity=".15"/>
 </svg>

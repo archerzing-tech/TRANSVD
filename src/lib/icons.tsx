@@ -280,6 +280,23 @@ export const IconAlertCircle: FC<IconProps> = (props) => (
   </Icon>
 );
 
+export const IconLeaf: FC<IconProps> = (props) => (
+  <Icon viewBox="0 0 24 24" {...props}>
+    {/* Rounded rect background */}
+    <rect x="2" y="2" width="20" height="20" rx="4.5" fill="currentColor" fillOpacity={0.08} stroke="currentColor" strokeWidth={1.5} strokeOpacity={0.2} />
+    {/* Leaf body */}
+    <path d="M12 5.5C12 5.5 6.5 8.5 6.5 13c0 4 2.5 6.5 5.5 6.5s5.5-2.5 5.5-6.5C17.5 8.5 12 5.5 12 5.5z" />
+    {/* Center vein */}
+    <path d="M12 5.5v14" />
+    {/* Side veins - left */}
+    <path d="M9 10.5l3 1.5" />
+    <path d="M8 14l4 1" />
+    {/* Side veins - right */}
+    <path d="M15 10.5l-3 1.5" />
+    <path d="M16 14l-4 1" />
+  </Icon>
+);
+
 export const IconFilm: FC<IconProps> = (props) => (
   <Icon {...props}>
     <rect x="2" y="2" width="20" height="20" rx="2.5" />

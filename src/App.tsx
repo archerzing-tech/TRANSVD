@@ -13,7 +13,7 @@ import LanguageSwitcher from "./components/common/LanguageSwitcher";
 import SettingsDrawer from "./components/common/SettingsDrawer";
 import { useTranslation } from "./context/LanguageContext";
 import { OPERATIONS, type OperationId, type VideoFile } from "./types";
-import { OPERATION_ICONS, IconFilm, IconLoading } from "./lib/icons";
+import { OPERATION_ICONS, IconLeaf, IconFilm, IconLoading } from "./lib/icons";
 
 export type { OperationId, VideoFile } from "./types";
 export { OPERATIONS } from "./types";
@@ -450,8 +450,8 @@ function LandingPage({ onFileSelected, onFileAndOperation }: { onFileSelected: (
         {/* Top bar */}
         <div className="flex items-center justify-between px-4 pt-5 pb-2 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-              <IconFilm size={20} className="text-brand-500" />
+            <div className="w-9 h-9 flex items-center justify-center">
+              <IconLeaf size={28} className="text-brand-500" />
             </div>
             <div>
               <h1 className="text-lg font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
@@ -533,8 +533,8 @@ function LandingPage({ onFileSelected, onFileAndOperation }: { onFileSelected: (
       {/* Top bar */}
       <div className="flex items-center justify-between px-6 pt-5 pb-2 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-            <IconFilm size={22} className="text-brand-500" />
+          <div className="w-10 h-10 flex items-center justify-center">
+            <IconLeaf size={30} className="text-brand-500" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>

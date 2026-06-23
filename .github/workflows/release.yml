@@ -287,39 +287,46 @@ jobs:
           name: transvd-android-apk
           path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
 
+      - name: Derive release tag from package.json
+        id: release-tag
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+
       - name: Wait for GitHub Release to be created by Desktop build
-        if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Waiting for release ${{ github.ref_name }} to be created by Desktop build..."
+          TAG="${{ steps.release-tag.outputs.tag }}"
+          echo "Waiting for release ${TAG} to be created by Desktop build..."
           for i in 1 2 3 4 5 6 7 8 9 10; do
-            if gh release view "${{ github.ref_name }}" > /dev/null 2>&1; then
-              echo "Release ${{ github.ref_name }} found."
+            if gh release view "${TAG}" > /dev/null 2>&1; then
+              echo "Release ${TAG} found."
               exit 0
             fi
             echo "Attempt $i: release not created yet, waiting 30s..."
             sleep 30
           done
-          echo "ERROR: Release ${{ github.ref_name }} not found after 10 attempts (5 min)" >&2
+          echo "ERROR: Release ${TAG} not found after 10 attempts (5 min)" >&2
           exit 1
 
       - name: Upload APK to GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
+          TAG="${{ steps.release-tag.outputs.tag }}"
           APK_FILE=$(find src-tauri/gen/android/app/build/outputs/apk -name '*.apk' -type f | head -1)
           if [ -z "$APK_FILE" ]; then
             echo "No APK file found to upload to release"
             exit 1
           fi
           # Rename to a clean name (no 'universal' in filename)
-          APK_BASENAME="TRANSVD-${{ github.ref_name }}-arm64-v8a.apk"
+          APK_BASENAME="TRANSVD-${TAG}-arm64-v8a.apk"
           cp "$APK_FILE" "/tmp/$APK_BASENAME"
-          echo "Uploading /tmp/$APK_BASENAME to release ${{ github.ref_name }}..."
-          gh release upload "${{ github.ref_name }}" "/tmp/$APK_BASENAME" --clobber
-          echo "APK uploaded successfully to release ${{ github.ref_name }}"
+          echo "Uploading /tmp/$APK_BASENAME to release ${TAG}..."
+          gh release upload "${TAG}" "/tmp/$APK_BASENAME" --clobber
+          echo "APK uploaded successfully to release ${TAG}"

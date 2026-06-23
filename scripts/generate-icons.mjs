@@ -31,28 +31,28 @@ const TAURI_SIZES = [
 ];
 
 // ── SVG templates for the icon ──
-// A minimalist green leaf silhouette
+// A minimalist gold leaf silhouette (brand color)
 
 const SVG_FOREGROUND = `<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
   <!-- Leaf body -->
   <path d="M54,22 C54,22 34,38 30,54 C26,70 38,86 54,86 C70,86 82,70 78,54 C74,38 54,22 54,22Z"
-    stroke="#4ADE80" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    stroke="#D4A860" stroke-width="2.8" fill="none" stroke-linecap="round"/>
   <!-- Center vein -->
-  <path d="M54,22 L54,84" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M54,22 L54,84" stroke="#D4A860" stroke-width="2.5" stroke-linecap="round"/>
   <!-- Left side veins -->
-  <path d="M54,36 L38,44" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M54,50 L34,58" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M54,64 L40,72" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,36 L38,44" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,50 L34,58" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,64 L40,72" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
   <!-- Right side veins -->
-  <path d="M54,36 L70,44" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M54,50 L74,58" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
-  <path d="M54,64 L68,72" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,36 L70,44" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,50 L74,58" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M54,64 L68,72" stroke="#D4A860" stroke-width="1.8" stroke-linecap="round"/>
   <!-- Stem -->
-  <path d="M54,22 L54,14" stroke="#4ADE80" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M54,22 L54,14" stroke="#D4A860" stroke-width="2.8" stroke-linecap="round"/>
 </svg>`;
 
 const SVG_BACKGROUND = `<svg xmlns="http://www.w3.org/2000/svg" width="108" height="108" viewBox="0 0 108 108">
-  <rect width="108" height="108" fill="#1A3A2A"/>
+  <rect width="108" height="108" fill="#1C1B18"/>
 </svg>`;
 
 // ── Helper: generate a colored circle PNG using sharp ──

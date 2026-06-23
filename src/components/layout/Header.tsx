@@ -2,7 +2,7 @@ import ThemeSwitcher from "../common/ThemeSwitcher";
 import LanguageSwitcher from "../common/LanguageSwitcher";
 import { useTranslation } from "../../context/LanguageContext";
 import { useFFmpeg } from "../../hooks/useFFmpeg";
-import { IconFilm, IconLoading } from "../../lib/icons";
+import { IconLeaf, IconLoading } from "../../lib/icons";
 import type { VideoFile } from "../../types";
 
 interface HeaderProps {
@@ -21,8 +21,8 @@ export default function Header({ onHome, video }: HeaderProps) {
         className="flex items-center gap-2 group cursor-pointer min-w-0 shrink-0"
         title={t("app.title")}
       >
-        <div className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
-          <IconFilm size={16} className="text-brand-500" />
+        <div className="w-7 h-7 flex items-center justify-center shrink-0">
+          <IconLeaf size={22} className="text-brand-500" />
         </div>
         <h1 className="text-sm font-bold text-surface-50 tracking-tight">{t("app.title")}</h1>
       </button>
