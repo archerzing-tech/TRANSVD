@@ -1,7 +1,7 @@
 const en: Record<string, string> = {
   // App
   "app.title": "TRANSVD",
-  "app.subtitle": "Desktop Video Editor",
+  "app.subtitle": "Audio & Video Editing Toolbox",
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
   // Operations sidebar

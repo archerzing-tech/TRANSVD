@@ -1,7 +1,7 @@
 const zh: Record<string, string> = {
   // App
-  "app.title": "视频转换工具箱",
-  "app.subtitle": "桌面视频编辑工具",
+  "app.title": "TRANSVD",
+  "app.subtitle": "音视频编辑工具箱",
   "app.ffmpeg_wasm": "ffmpeg.wasm",
 
   // Operations sidebar

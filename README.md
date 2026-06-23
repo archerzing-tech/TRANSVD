@@ -1,10 +1,10 @@
 <div align="center">
   <br />
-  <img src="public/screenshots/home.png" alt="TRANSVD — Desktop Video Editor" width="720" />
+  <img src="public/screenshots/home.png" alt="TRANSVD — 音视频编辑工具箱" width="720" />
   <br />
-  <h1 align="center">视频转换工具箱 · TRANSVD</h1>
+  <h1 align="center">TRANSVD</h1>
   <p align="center">
-    一个安静的桌面视频工具箱 · A native desktop video toolbox<br />
+    一个安静的桌面音视频编辑工具箱 · A native audio & video editing toolbox<br />
     <em>Drop a video. Do almost anything. No uploads.</em>
   </p>
   <p>
@@ -21,15 +21,15 @@
 
 ## 📖 故事 · Story
 
-**视频转换工具箱**（英文名 **TRANSVD**）诞生于一个简单的念头：**处理视频不应该这么麻烦**。
+**TRANSVD** 是一个桌面音视频编辑工具箱，诞生于一个简单的念头：**处理音视频不应该这么麻烦**。
 
-市面上的视频编辑工具要么臃肿庞大，要么需要上传到云端。我们想要一个打开就能用、用完即走的东西——一个**桌面上的视频工具箱**。
+市面上的视频编辑工具要么臃肿庞大，要么需要上传到云端。我们想要一个打开就能用、用完即走的东西——一个**桌面上的音视频编辑工具箱**。
 
 项目始于对 [ffmpeg-webCLI](https://github.com/tejaswigowda/ffmpeg-webCLI) 的移植——那是一个在浏览器中通过 ffmpeg.wasm 处理视频的 PWA。我们用 **Tauri 2.x** 把它包裹成真正的原生桌面应用，加入了文件系统集成、原生对话框、拖放支持。后来又添加了 **原生 ffmpeg 侧载（sidecar）路径**，绕过了 WASM 的 2GB 内存限制，用更快的速度处理更大的文件。
 
 所有处理都在本地完成。不上传，不等待。你的视频始终在你的机器上。
 
-> *TRANSVD (a.k.a. 视频转换工具箱) is born from a simple idea: video editing shouldn't be a hassle.*
+> *TRANSVD is born from a simple idea: video editing shouldn't be a hassle.*
 > *No bloatware, no cloud uploads — just a native desktop toolbox that works.*
 
 ---
@@ -44,7 +44,7 @@
 
 ## 🎬 你能做什么 · Features
 
-视频转换工具箱 / TRANSVD 提供 **25 种操作**，覆盖日常视频处理的方方面面：
+TRANSVD 提供 **25 种操作**，覆盖日常音视频处理的方方面面：
 
 ### 转换 & 压缩
 | 操作 | 说明 |
