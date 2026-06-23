@@ -215,8 +215,8 @@ function MobileLayout({
 }) {
   return (
     <>
-      {/* No header bar — just safe-area-top padding to avoid status bar overlap */}
-      <div className="flex-1 overflow-y-auto safe-area-top">
+      <div className="safe-area-top shrink-0 bg-surface-950" />
+      <div className="flex-1 overflow-y-auto">
         {!activeOperation || showOpPicker ? (
           <MobileOperationCards
             video={video}
@@ -446,9 +446,10 @@ function LandingPage({ onFileSelected, onFileAndOperation }: { onFileSelected: (
 
   if (isMobile) {
     return (
-      <div className="h-full flex flex-col bg-surface-950 overflow-y-auto">
+      <div className="h-full flex flex-col bg-surface-950">
+        <div className="safe-area-top shrink-0 bg-surface-950" />
         {/* Top bar */}
-        <div className="flex items-center justify-between px-4 pt-5 pb-2 shrink-0">
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 flex items-center justify-center">
               <IconLeaf size={28} className="text-brand-500" />
@@ -473,7 +474,7 @@ function LandingPage({ onFileSelected, onFileAndOperation }: { onFileSelected: (
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col px-4 pb-6">
+        <div className="flex-1 flex flex-col px-4 pb-6 overflow-y-auto">
           <p className="text-xs text-surface-500 mb-5 text-center max-w-xs mx-auto leading-relaxed">
             {t("app.tagline")}
           </p>
