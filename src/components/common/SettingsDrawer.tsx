@@ -133,7 +133,7 @@ export default function SettingsDrawer({ open, onClose }: SettingsDrawerProps) {
 
             {/* ── App version ── */}
             <div className="pt-4 border-t border-surface-800/50">
-              <p className="text-xs text-surface-600 text-center">TRANSVD v2.2.0</p>
+              <p className="text-xs text-surface-600 text-center">TRANSVD v2.2.2</p>
               <p className="text-[10px] text-surface-700 text-center mt-1">
                 Powered by ffmpeg.wasm
               </p>
