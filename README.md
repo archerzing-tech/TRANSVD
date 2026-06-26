@@ -13,9 +13,30 @@
     <img src="https://img.shields.io/badge/Rust-1.85+-DEA584?logo=rust" alt="Rust" />
     <img src="https://img.shields.io/badge/FFmpeg-Native-169F41?logo=ffmpeg" alt="FFmpeg Native" />
     <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT" />
+    <a href="https://github.com/archerzing-tech/TRANSVD/releases"><img src="https://img.shields.io/github/v/release/archerzing-tech/TRANSVD?color=8B5CF6&label=Download" alt="Latest Release" /></a>
   </p>
   <br />
 </div>
+
+---
+
+## 🎯 快速上手 · Quick Start
+
+从 [Releases](https://github.com/archerzing-tech/TRANSVD/releases) 下载对应平台的安装包并安装：
+
+| 平台 | 安装包 |
+|------|--------|
+| macOS (Intel + Apple Silicon) | `TRANSVD_x.x.x_universal.dmg` |
+| Windows 10+ | `TRANSVD_x.x.x_x64-setup.exe` |
+| Android | `TRANSVD-x.x.x-arm64-v8a.apk` |
+
+**三步开始使用：**
+
+1. **打开应用** → 将视频/音频文件拖入窗口或点击选择文件
+2. **选择操作** → 裁剪、转换格式、压缩、调速、加水印……共 25 种
+3. **调整参数 → 执行** → 等待处理完成，保存结果
+
+> 所有处理均在本地完成。不上传，不等待。你的文件始终在你的机器上。
 
 ---
 
@@ -122,34 +143,19 @@ TRANSVD 提供 **25 种操作**，覆盖日常音视频处理的方方面面：
 
 ---
 
-## 🚀 快速开始 · Getting Started
-
-### 安装
-
-从 [Releases](https://github.com/ericever/TRANSVD/releases) 页面下载对应平台的安装包：
-
-| 平台 | 安装包 |
-|------|--------|
-| macOS (Intel) | `.dmg` (x64) |
-| Windows 10+ | `.exe` / `.msi` |
-| Linux (WIP) | `.AppImage` / `.deb` |
-
-### 从源码构建
+## 🛠️ 从源码构建 · Build from Source
 
 ```bash
 # 前提条件
 # - Node.js 18+
 # - Rust 1.85+ (rustup target add x86_64-pc-windows-msvc)
+# - ffmpeg 静态二进制（macOS CI 自动下载，Windows 需手动放置）
 
-git clone https://github.com/ericever/TRANSVD.git
+git clone https://github.com/archerzing-tech/TRANSVD.git
 cd TRANSVD
 
 # 安装依赖
 npm install
-
-# 放置 ffmpeg 二进制到 src-tauri/binaries/
-# （macOS 构建会自动下载，Windows 需手动放置）
-# 见 .github/workflows/release.yml 了解下载地址
 
 # 开发模式（热重载）
 npm run tauri dev
@@ -158,6 +164,8 @@ npm run tauri dev
 npm run tauri build
 # 安装包输出在 src-tauri/target/release/bundle/
 ```
+
+> **ffmpeg 二进制**：macOS CI 会自动下载并合并通用二进制；Windows 需从 [gyan.dev](https://www.gyan.dev/ffmpeg/builds/) 下载放在 `src-tauri/binaries/ffmpeg-x86_64-pc-windows-msvc.exe`。Android 使用 ffmpeg.wasm，无需侧载二进制。
 
 ---
 
