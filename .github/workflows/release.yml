@@ -194,6 +194,7 @@ jobs:
 
   build-android:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.run-android }}
+    needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
