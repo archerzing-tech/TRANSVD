@@ -150,3 +150,15 @@ npm run tauri devtools
 - **ffmpeg.wasm loading**: The ~31 MB WASM core must be bundled in `src-tauri/resources/` or served from the frontend. In dev mode it loads from CDN; in production it's bundled.
 - **File associations**: Register video/audio MIME types in `tauri.conf.json` `app.security.assetProtocol.scope`.
 - **Large files**: WASM has a ~2 GB memory limit. For files >1 GB, consider adding a native ffmpeg sidecar path via `tauri-plugin-shell`.
+
+## Version Bump Checklist
+
+When bumping the version (e.g. for a release), update ALL three files to the same version number:
+
+| File | Key |
+|------|-----|
+| `package.json` | `"version"` |
+| `src-tauri/Cargo.toml` | `[package] version` |
+| `src-tauri/tauri.conf.json` | `"version"` |
+
+`tauri-action` reads the version from `tauri.conf.json` to determin the release tag (`v__VERSION__`), while the Android CI job reads from `package.json`. A mismatch causes the Android build to wait for a release tag that will never be created. Always keep the three synchronized.
