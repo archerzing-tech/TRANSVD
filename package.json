@@ -1,6 +1,6 @@
 {
   "name": "transvd",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "packageManager": "bun@1.3.14",
   "description": "Audio & video editing toolbox powered by ffmpeg — Tauri 2.x port of ffmpeg-webCLI",
   "type": "module",

@@ -74,16 +74,16 @@ export default function OperationPanel({ operation, video, onOpenFile, onSelectO
   if (!operation) {
     return (
       <div className="max-w-4xl mx-auto animate-fade-in">
-        <div className="flex items-start justify-between mb-8">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-8">
+          <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold text-surface-50 tracking-tight">Ready to edit</h2>
-            <p className="text-sm text-surface-500 mt-1">
+            <p className="text-sm text-surface-500 mt-1 truncate">
               <span className="font-mono text-surface-400">{video.name}</span>
-              {" · "}
+              <span className="text-surface-600 mx-1">·</span>
               {(video.size / 1024 / 1024).toFixed(1)} MB
             </p>
           </div>
-          <button onClick={onOpenFile} className="btn-secondary text-sm flex items-center gap-2 shrink-0">
+          <button onClick={onOpenFile} className="btn-secondary text-sm flex items-center gap-2 shrink-0 whitespace-nowrap">
             <IconOpenFile size={16} className="text-surface-400" />
             {t("op.open_new")}
           </button>
@@ -97,29 +97,29 @@ export default function OperationPanel({ operation, video, onOpenFile, onSelectO
   return (
     <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Header section */}
-      <div className="flex items-start justify-between mb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
             {OpIcon ? <OpIcon size={20} className="text-brand-500" /> : <IconFilm size={20} className="text-brand-500" />}
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-surface-50 tracking-tight">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-bold text-surface-50 tracking-tight truncate">
               {t(`op.${operation}`)}
             </h2>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-xs text-surface-500 font-mono truncate max-w-[280px]">
+            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+              <span className="text-xs text-surface-500 font-mono truncate max-w-[160px] sm:max-w-[280px]">
                 {video.name}
               </span>
-              <span className="text-[10px] text-surface-600">·</span>
-              <span className="text-xs text-surface-500">
+              <span className="text-[10px] text-surface-600 shrink-0">·</span>
+              <span className="text-xs text-surface-500 shrink-0">
                 {(video.size / 1024 / 1024).toFixed(1)} MB
               </span>
-              <span className="text-[10px] text-surface-600">·</span>
-              <span className="text-[11px] text-surface-600 capitalize">{operation}</span>
+              <span className="text-[10px] text-surface-600 shrink-0">·</span>
+              <span className="text-[11px] text-surface-600 capitalize shrink-0">{operation}</span>
             </div>
           </div>
         </div>
-        <button onClick={onOpenFile} className="btn-secondary text-sm flex items-center gap-2 shrink-0">
+        <button onClick={onOpenFile} className="btn-secondary text-sm flex items-center gap-2 shrink-0 whitespace-nowrap sm:self-start">
           <IconOpenFile size={16} className="text-surface-400" />
           {t("op.open_new")}
         </button>

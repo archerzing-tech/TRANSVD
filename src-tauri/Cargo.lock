@@ -3711,7 +3711,7 @@ dependencies = [
 
 [[package]]
 name = "transvd"
-version = "2.1.6"
+version = "2.2.2"
 dependencies = [
  "serde",
  "tauri",

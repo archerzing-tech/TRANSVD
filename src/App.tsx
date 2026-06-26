@@ -377,15 +377,15 @@ function MobileOperationCards({
   return (
     <div className="px-4 pt-4 pb-20">
       {/* File info bar */}
-      <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-surface-850 border border-surface-800/50">
+      <div className="flex items-center gap-2 mb-4 p-3 rounded-xl bg-surface-850 border border-surface-800/50">
         <div className="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center shrink-0">
           <IconFilm size={18} className="text-brand-500" />
         </div>
-        <div className="flex-1 min-w-0 text-center">
-          <p className="text-sm font-medium text-surface-200 truncate max-w-full">{video.name}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-surface-200 truncate">{video.name}</p>
           <p className="text-xs text-surface-500">{(video.size / 1024 / 1024).toFixed(1)} MB</p>
         </div>
-        <button onClick={onOpenFile} className="btn-secondary btn-sm shrink-0 text-xs cursor-pointer">
+        <button onClick={onOpenFile} className="btn-secondary btn-sm shrink-0 ml-1 cursor-pointer whitespace-nowrap">
           {t("op.open_new")}
         </button>
       </div>
@@ -505,11 +505,15 @@ function LandingPage({ onFileSelected, onFileAndOperation }: { onFileSelected: (
             <p className="text-[10px] text-surface-600 font-medium tracking-widest uppercase text-center mb-3">{t("app.quick_actions")}</p>
             <div className="grid grid-cols-2 gap-2.5">
               {OP_CATEGORIES.slice(0, 4).map((cat) => (
-                <div key={cat.title} className="card-hover !p-3">
+                <button
+                  key={cat.title}
+                  onClick={() => onFileAndOperation?.(cat.ids[0])}
+                  className="card-hover !p-3 text-left cursor-pointer"
+                >
                   <div className="h-0.5 -mx-3 -mt-3 mb-2 bg-gradient-to-r from-brand-600/15 to-brand-700/8" />
                   <p className="text-xs font-semibold text-surface-300 mb-0.5">{cat.title}</p>
                   <p className="text-[10px] text-surface-600">{cat.ids.length} operations</p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
